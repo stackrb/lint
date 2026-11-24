@@ -1,0 +1,95 @@
+{
+  "name": "@stackrb/eslint-config",
+  "version": "0.1.0",
+  "description": "One-import ESLint flat config for Node, browser, React, React Native and Expo projects",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
+  "keywords": [
+    "eslint",
+    "eslintconfig",
+    "flat-config",
+    "typescript",
+    "react",
+    "react-native",
+    "expo"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run test/unit test/integration test/e2e test/memory",
+    "test:unit": "vitest run test/unit",
+    "test:integration": "vitest run test/integration",
+    "test:e2e": "vitest run test/e2e",
+    "test:memory": "vitest run test/memory",
+    "test:perf": "vitest bench --run test/performance",
+    "lint": "npm run build && eslint .",
+    "audit": "npm audit --audit-level=high",
+    "check": "npm run typecheck && npm run test && npm run lint && npm run audit && npm run build"
+  },
+  "peerDependencies": {
+    "eslint": ">=10.4.0",
+    "typescript": ">=4.8.4 <6.1.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@deslint/eslint-plugin": "0.10.0",
+    "@eslint-react/eslint-plugin": "5.30.6",
+    "@react-native/eslint-plugin": "0.88.1",
+    "@eslint-community/eslint-plugin-eslint-comments": "4.8.1",
+    "@eslint/js": "10.0.1",
+    "@eslint/json": "2.1.1",
+    "@eslint/markdown": "9.0.0",
+    "@stylistic/eslint-plugin": "6.0.1",
+    "@typescript-eslint/parser": "8.74.0",
+    "@vitest/eslint-plugin": "1.6.28",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-de-morgan": "2.3.0",
+    "eslint-plugin-depend": "1.5.0",
+    "eslint-plugin-deprecate": "0.9.0",
+    "eslint-plugin-expo": "1.2.1",
+    "eslint-plugin-jsdoc": "65.5.4",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-n": "18.5.0",
+    "eslint-plugin-perfectionist": "5.14.0",
+    "eslint-plugin-promise": "7.3.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-native-globals": "0.1.2",
+    "eslint-plugin-regexp": "3.3.3",
+    "eslint-plugin-security": "4.2.1",
+    "eslint-plugin-sonarjs": "4.2.2",
+    "eslint-plugin-unicorn": "80.0.0",
+    "globals": "17.14.0",
+    "typescript-eslint": "8.74.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "eslint": "10.15.0",
+    "tsup": "9.0.0",
+    "typescript": "6.0.2",
+    "vite": "8.3.8",
+    "vitest": "5.1.1"
+  }
+}

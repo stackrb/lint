@@ -1,0 +1,13 @@
+{
+  "name": "@stackrb/eslint-config-consumer-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@stackrb/eslint-config": "file:../..",
+    "eslint": "10.15.0"
+  }
+}

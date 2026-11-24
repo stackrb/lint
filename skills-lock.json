@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "skills": {
+    "antfu": {
+      "source": "antfu/skills",
+      "commit": "4a6bb39e7b45e26402eb215393c51ccf5df1ca4c",
+      "sourceType": "github",
+      "skillPath": "skills/antfu/SKILL.md",
+      "computedHash": "f4f1d301472e7623d7eaac7e5a72cbf35c00fd28439675a5ccff202a5dbe1110"
+    },
+    "eslint-prettier-config": {
+      "source": "patricio0312rev/skills",
+      "commit": "79ea6af485698b31060b63f0066f712560757b29",
+      "sourceType": "github",
+      "skillPath": "foundation/eslint-prettier-config/SKILL.md",
+      "computedHash": "325500705dbec60e8352b1ceb64347c4674414acfb63c35bc731d37e67f62fe8"
+    }
+  }
+}

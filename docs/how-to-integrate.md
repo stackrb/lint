@@ -1,0 +1,224 @@
+# How-to guide
+
+Task-focused recipes for integrating and customising `@stackrb/eslint-config`. Each section is independent; use the ones you need.
+
+If you are new to the package, start with the [tutorial](tutorial.md).
+
+## Add the config to a new package
+
+1. Install the package and its required peer:
+
+   ```sh
+   npm install --save-dev eslint @stackrb/eslint-config
+   ```
+
+   Add `typescript` as well if you lint TypeScript files:
+
+   ```sh
+   npm install --save-dev typescript
+   ```
+
+2. Create `eslint.config.mjs` at the package root:
+
+   ```js
+   import config from '@stackrb/eslint-config';
+
+   export default config;
+   ```
+
+3. Lint your files:
+
+   ```sh
+   npx eslint .
+   ```
+
+Optionally add a script to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "lint": "eslint ."
+  }
+}
+```
+
+## Choose a target
+
+Pass `target` to `createConfig`:
+
+```js
+import { createConfig } from '@stackrb/eslint-config';
+
+export default createConfig({ target: 'browser' });
+```
+
+Examples for each runtime:
+
+```js
+// Node.js (the default — you can also omit `target`)
+createConfig({ target: 'node' });
+
+// Browser code
+createConfig({ target: 'browser' });
+
+// React (includes browser globals and React, hooks, and JSX a11y rules)
+createConfig({ target: 'react' });
+
+// React Native (includes React, plus React Native rules and globals)
+createConfig({ target: 'native' });
+
+// Expo (includes React Native, plus Expo-specific rules)
+createConfig({ target: 'expo' });
+```
+
+You can combine independent runtimes:
+
+```js
+export default createConfig({ target: ['node', 'browser'] });
+```
+
+`react`, `native`, and `expo` are cumulative (`expo` includes `native`, which includes `react`). Overlaps are deduplicated automatically: `{ target: ['native', 'expo'] }` applies only the `expo` config. Independent runtimes such as `['node', 'browser']` are both applied.
+
+If you prefer preset names, use the plugin facade:
+
+```js
+import { plugin } from '@stackrb/eslint-config';
+
+export default plugin.configs.node; // or .browser, .react, .native, .expo, .recommended
+```
+
+`plugin.configs.recommended` is the same as the default export.
+
+## Customise rules
+
+Use `extraRules` for final overrides. These are applied **after** all presets and after the Prettier compatibility config, so your settings always win. Overrides are scoped to code files (`**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}`), so a plugin rule cannot crash JSON or Markdown linting:
+
+```js
+import { createConfig } from '@stackrb/eslint-config';
+
+export default createConfig({
+  extraRules: {
+    'no-console': 'warn',
+    '@typescript-eslint/no-unused-vars': 'off',
+  },
+});
+```
+
+Values follow ESLint's normal rule severities (`'off'`, `'warn'`, `'error'`, or `0`/`1`/`2`) and rule-option arrays.
+
+## Ignore additional files or directories
+
+`extraIgnores` extends the built-in global ignore list:
+
+```js
+export default createConfig({
+  extraIgnores: ['**/generated/**', '**/*.snap'],
+});
+```
+
+The defaults already exclude `node_modules`, `dist`, `build`, `coverage`, `.vitest`, `test/results`, `cache`, `package-lock.json`, and `.cache-dist-bak`. See the [full ignore list](reference.md#ignore-list).
+
+## Set the Node.js version
+
+The config sets `settings.node.version` to `>=20.19.0` by default, which drives Node.js feature checks. Override it to match your project's supported runtime:
+
+```js
+export default createConfig({ nodeVersion: '>=22.13.0' });
+```
+
+Setting this explicitly stops the config from guessing based on your package's `engines` field.
+
+## Enable type-aware linting
+
+Type-aware rules need a TypeScript project definition. Set `typed` to `true`:
+
+```js
+import { createConfig } from '@stackrb/eslint-config';
+
+export default createConfig({ target: 'node', typed: true });
+```
+
+This adds `typescript-eslint`'s `recommendedTypeChecked` preset and sets `parserOptions.projectService: true`, so ESLint uses the nearest TypeScript project to resolve type information.
+
+Before enabling it, make sure:
+
+- `typescript` is installed (it is an optional peer).
+- Your `tsconfig.json` includes the files you lint.
+
+Type-aware mode is opt-in because it needs a project and costs more to run. Leave `typed` off for a quick, zero-config setup.
+
+## Flag deprecated symbols
+
+`deprecations` configures `eslint-plugin-deprecate`. Each entry needs a `name`; `use` names the replacement, and `kind` selects the rule to use:
+
+```js
+export default createConfig({
+  deprecations: [
+    { name: 'oldApi' },
+    { name: 'legacyFn', use: 'newFn' },
+    { name: 'config.oldOption', kind: 'member-expression', use: 'config.newOption' },
+    { name: 'old-package/legacy', kind: 'import', use: 'new-package' },
+  ],
+});
+```
+
+`kind` accepts `'function'` (the default), `'import'`, or `'member-expression'`. When the option is empty or omitted, no deprecation rules are enabled.
+
+## Ban dependencies
+
+`bannedDependencies` configures `eslint-plugin-depend`'s `ban-dependencies` rule. Values are passed to its `modules` option as names or patterns:
+
+```js
+export default createConfig({
+  bannedDependencies: ['lodash', 'moment', 'request'],
+});
+```
+
+The ban is enforced in code files (via the base config) and in JSON files (via the data config). When the option is empty or omitted, the rule is not enabled.
+
+## Add ambient globals
+
+Use `extraGlobals` to declare additional globals for code files:
+
+```js
+import { createConfig } from '@stackrb/eslint-config';
+
+export default createConfig({
+  extraGlobals: { GM_xmlhttpRequest: 'readonly', chrome: 'readonly' },
+});
+```
+
+This emits a `stackrb/extra-globals` config scoped to `CODE_FILES`. Values can be `true` or `'writable'` (writable global), `'readonly'` (read-only global), or `false` or `'off'` (disabled global).
+
+## Compose your own config from parts
+
+Every layer is exported as a function returning a `Linter.Config[]`. Call them in the order you want and pass the options each one accepts:
+
+```js
+import { defineConfig } from 'eslint/config';
+import {
+  ignores,
+  base,
+  javascript,
+  typescript,
+  tests,
+  data,
+  markdown,
+  react,
+  prettier,
+} from '@stackrb/eslint-config';
+
+export default defineConfig([
+  ...ignores(),
+  ...base(),
+  ...javascript(),
+  ...typescript(),
+  ...tests(),
+  ...data(),
+  ...markdown(),
+  ...react(),
+  ...prettier(),
+]);
+```
+
+`base(options)`, `typescript(options)`, and `data(options)` accept the relevant `Options` fields; the remaining partials take no arguments. Your own block can go at the end for final overrides. See the [exports table](reference.md#exports) for the full list.
