@@ -34,7 +34,7 @@ function generatedConfig(options: Options): string {
   return `import { createConfig } from ${JSON.stringify(CONFIG_MODULE_URL)};\nexport default createConfig(${JSON.stringify(options)});\n`;
 }
 
-export async function createProject(options: CreateProjectOptions = {}): Promise<Project> {
+async function createProject(options: CreateProjectOptions = {}): Promise<Project> {
   // Evaluating a config file registers a global tsconfig-root candidate; keep
   // separate fixture projects from seeing each other's candidates.
   clearCandidateTSConfigRootDirs();

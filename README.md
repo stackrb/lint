@@ -100,12 +100,23 @@ These scripts develop and verify the package itself; consuming projects do not n
 | `test:memory` | `vitest run test/memory` |
 | `test:perf` | `vitest bench --run test/performance` |
 | `lint` | `npm run build && eslint .` |
+| `knip` | `knip` — report unused files, dependencies, and exports |
+| `prepare` | `husky` — install the Git hooks on a local install |
 | `docs` | `npm run build && mdaics && node scripts/clean-api-documents.mjs` |
 | `docs:check` | regenerate the API reference and fail if it differs from the committed files |
 | `audit` | `npm audit --audit-level=high` |
 | `check` | `npm run typecheck && npm run test && npm run lint && npm run audit` |
 
 Generating docs requires Node.js `>=22.17` (the `mdaics` dev dependency). Consumers are unaffected.
+
+### Git hooks
+
+`npm install` runs `husky`, which configures two hooks:
+
+- `pre-commit` → `npm run typecheck && npm run lint && npm run knip`
+- `commit-msg` → `commitlint --edit` with `@commitlint/config-conventional`, so messages such as `feat: add a target` are required
+
+Set `HUSKY=0` to skip hook installation when you don't want them.
 
 ## Documentation
 

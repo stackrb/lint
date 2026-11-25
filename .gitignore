@@ -3,6 +3,7 @@ dist/
 coverage/
 .vitest/
 .mdaicscache
+.husky/_
 *.log
 .DS_Store
 .env

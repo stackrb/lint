@@ -22,6 +22,7 @@ Initial public release.
 - Playwright linting via `eslint-plugin-playwright`'s `flat/recommended`, always enabled for test files.
 - Generated API reference under `docs/api/`, produced from JSDoc by `mdaics` via the `docs` script, with a `docs:check` CI guard.
 - Documentation: this changelog, a README, a tutorial, how-to, reference, explanation, generated API pages, and a runnable consumer example.
+- Development tooling: Husky pre-commit and commit-msg hooks, commitlint with the conventional preset, and Knip for unused code/dependency checks.
 
 ### Changed
 

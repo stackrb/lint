@@ -1,0 +1,4 @@
+{
+  "entry": ["mdaics.config.mjs"],
+  "ignore": ["dist/**", "examples/**"]
+}
