@@ -1,10 +1,10 @@
 <a name="base"></a>
 
-## base(options) ⇒ <code>Linter.Config[]</code>
+## base(options) ⇒ <code>Linter.Config&lt;import(&quot;../../node\_modules/@eslint/core/dist/cjs/types.cjs&quot;).RulesConfig&gt;[]</code>
 Builds the shared base config: TypeScript parser, Node settings and common plugin presets.
 
 **Kind**: global function  
-**Returns**: <code>Linter.Config[]</code> - The base config blocks.  
+**Returns**: <code>Linter.Config&lt;import(&quot;../../node\_modules/@eslint/core/dist/cjs/types.cjs&quot;).RulesConfig&gt;[]</code> - The base config blocks.  
 
 | Param | Type | Description |
 | --- | --- | --- |

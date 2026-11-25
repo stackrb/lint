@@ -9,7 +9,7 @@
 ## Functions
 
 <dl>
-<dt><a href="#createConfig">createConfig(options)</a> ⇒ <code>Linter.Config[]</code></dt>
+<dt><a href="#createConfig">createConfig(options)</a> ⇒ <code>Linter.Config&lt;import(&quot;../node_modules/@eslint/core/dist/cjs/types.cjs&quot;).RulesConfig&gt;[]</code></dt>
 <dd><p>Builds the complete ESLint flat config in the documented composition order.</p>
 </dd>
 </dl>
@@ -24,11 +24,11 @@ src: src/index.ts:102
 dist: dist/index.js:88
 <a name="createConfig"></a>
 
-## createConfig(options) ⇒ <code>Linter.Config[]</code>
+## createConfig(options) ⇒ <code>Linter.Config&lt;import(&quot;../node\_modules/@eslint/core/dist/cjs/types.cjs&quot;).RulesConfig&gt;[]</code>
 Builds the complete ESLint flat config in the documented composition order.
 
 **Kind**: global function  
-**Returns**: <code>Linter.Config[]</code> - The ordered config blocks consumed by ESLint.  
+**Returns**: <code>Linter.Config&lt;import(&quot;../node\_modules/@eslint/core/dist/cjs/types.cjs&quot;).RulesConfig&gt;[]</code> - The ordered config blocks consumed by ESLint.  
 
 | Param | Type | Description |
 | --- | --- | --- |
