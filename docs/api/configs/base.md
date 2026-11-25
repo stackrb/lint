@@ -11,3 +11,4 @@ Builds the shared base config: TypeScript parser, Node settings and common plugi
 | options | <code>Options</code> | Node version, deprecation and dependency-ban options. |
 
 src: src/configs/base.ts:59  
+dist: dist/configs/base.js:47

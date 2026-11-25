@@ -17,6 +17,7 @@ Builds the React Native target on top of the React config.
 **Kind**: global function  
 **Returns**: <code>Linter.Config[]</code> - The native target config blocks.  
 src: src/targets/mobile.ts:15  
+dist: dist/targets/mobile.js:11
 <a name="expo"></a>
 
 ## expo() ⇒ <code>Linter.Config[]</code>
@@ -25,3 +26,4 @@ Builds the Expo target on top of the React Native config.
 **Kind**: global function  
 **Returns**: <code>Linter.Config[]</code> - The Expo target config blocks.  
 src: src/targets/mobile.ts:37  
+dist: dist/targets/mobile.js:32

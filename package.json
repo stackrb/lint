@@ -34,7 +34,7 @@
   "sideEffects": false,
   "scripts": {
     "prepack": "npm run build",
-    "build": "tsup",
+    "build": "node scripts/clean-distribution.mjs && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "npm run build && vitest run test/unit test/integration test/e2e test/memory",
     "test:unit": "vitest run test/unit",
@@ -100,7 +100,6 @@
     "husky": "9.1.7",
     "knip": "6.48.0",
     "mdaics": "1.0.0",
-    "tsup": "9.0.0",
     "typescript": "6.0.2",
     "vite": "8.3.8",
     "vitest": "5.1.1"

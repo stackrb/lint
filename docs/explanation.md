@@ -70,7 +70,7 @@ A single "all files" glob would apply every plugin to every file. Instead the co
 
 - `JS_FILES` (`**/*.{js,jsx,mjs,cjs}`) carries JSDoc's JavaScript recommended rules.
 - `TS_FILES` (`**/*.{ts,tsx,mts,cts}`) carries `typescript-eslint` and JSDoc's TSDoc rules.
-- `TEST_FILES` (`**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}`) carries both Vitest and Playwright recommended rules and globals, so either test framework is covered without extra configuration.
+- `TEST_FILES` (`**/*.*{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}`) carries both Vitest and Playwright recommended rules and globals, so either test framework is covered without extra configuration.
 - `CODE_FILES` (`**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}`) carries the shared base rules and all target globals.
 
 JSON, JSONC, JSON5, and Markdown each get their own language config from `@eslint/json` and `@eslint/markdown`; shell scripts (`SHELL_FILES`, `**/*.{sh,bash}`) get `@eslint/shell` with the `shell/bash` language and its `shell/recommended` rules. Shell is a language, not a runtime target, so it is enabled unconditionally for matching files. Splitting the globs is what allows, for example, Node globals on a `.js` file and Vitest globals in a `.test.ts` file without either leaking into the wrong place.
@@ -103,7 +103,7 @@ The original internal config had several mistakes that prevented rules from taki
 
 ## Generated API reference
 
-The hand-written docs follow Diátaxis and explain how to use the package. They are complemented by `docs/api/`, generated from JSDoc by [`mdaics`](https://www.npmjs.com/package/mdaics): one Markdown page per source module, with the resolved parameter types and `src:`/`dist:` line pointers into the built artifact. The generator is configured in `mdaics.config.mjs` to write to `docs/api` rather than `docs`, so it never overwrites the authored guides. `npm run docs` builds first (the `dist:` pointers need a real build and source map) and then normalises an internal TypeScript type name in the output; `npm run docs:check` regenerates and fails if the committed files are stale. The generator is a dev-only tool requiring Node.js 22.17 or newer. Because `tsup` emits a single `dist/index.js` rather than a mirrored source tree, `mdaics` cannot resolve a per-module build file and omits the `dist:` pointer; the `src:` pointers remain exact.
+The hand-written docs follow Diátaxis and explain how to use the package. They are complemented by `docs/api/`, generated from JSDoc by [`mdaics`](https://www.npmjs.com/package/mdaics): one Markdown page per source module, with the resolved parameter types and `src:`/`dist:` line pointers into the built artifact. The generator is configured in `mdaics.config.mjs` to write to `docs/api` rather than `docs`, so it never overwrites the authored guides. `npm run docs` builds first (the `dist:` pointers need a real build and source map) and then normalises an internal TypeScript type name in the output; `npm run docs:check` regenerates and fails if the committed files are stale. The generator is a dev-only tool requiring Node.js 22.17 or newer. The build uses `tsc` with a dedicated `tsconfig.build.json`, so `dist/` mirrors `src/` and `mdaics` can resolve exact `dist:` pointers for each module.
 
 ## Future improvements
 

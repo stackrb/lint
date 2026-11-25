@@ -8,18 +8,17 @@ const JS_FILES = '**/*.{js,jsx,mjs,cjs}';
 const TS_FILES = '**/*.{ts,tsx,mts,cts}';
 const CODE_FILES = '**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}';
 const SHELL_FILES = '**/*.{sh,bash}';
-const TEST_FILES = '**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}';
+const TEST_FILES = '**/*.*{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}';
 
 const DEFAULT_IGNORES = [
   '**/node_modules/**',
   '**/dist/**',
   '**/build/**',
   '**/coverage/**',
-  '**/.vitest/**',
-  '**/test/results/**',
   '**/cache/**',
-  'package-lock.json',
-  '.cache-dist-bak',
+  '**/package-lock.json',
+  '**/.*/**',
+  '**/.*',
 ];
 
 const TARGETS: readonly Target[] = ['node', 'browser', 'react', 'native', 'expo'];

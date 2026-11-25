@@ -4,7 +4,6 @@ import { defineConfig } from 'eslint/config';
 
 import type { Options, Target } from './types.js';
 
-import packageJson from '../package.json' with { type: 'json' };
 import { base } from './configs/base.js';
 import { data, javascript, markdown, typescript } from './configs/languages.js';
 import { ignores, prettier, tests } from './configs/misc.js';
@@ -14,6 +13,7 @@ import { CODE_FILES } from './constants.js';
 import { expo, native } from './targets/mobile.js';
 import { react } from './targets/react.js';
 import { browser, node } from './targets/runtime.js';
+import { VERSION } from './version.js';
 
 const TARGETS: Record<Target, { build: () => Linter.Config[]; includes: readonly Target[] }> = {
   browser: { build: browser, includes: [] },
@@ -120,7 +120,7 @@ export const plugin = {
       return preset('recommended');
     },
   },
-  meta: { name: '@stackrb/eslint-config', namespace: 'stackrb', version: packageJson.version },
+  meta: { name: '@stackrb/eslint-config', namespace: 'stackrb', version: VERSION },
   rules: {},
 } as const;
 

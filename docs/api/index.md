@@ -21,7 +21,7 @@ Plugin-shaped facade exposing lazily built, cached presets for `extends`.
 
 **Kind**: global constant  
 src: src/index.ts:102  
-dist: dist/index.js:488
+dist: dist/index.js:88
 <a name="createConfig"></a>
 
 ## createConfig(options) ⇒ <code>Linter.Config[]</code>
@@ -35,4 +35,4 @@ Builds the complete ESLint flat config in the documented composition order.
 | options | <code>Options</code> | Targets, ignores, globals, rules and other customisations. |
 
 src: src/index.ts:56  
-dist: dist/index.js:454
+dist: dist/index.js:47

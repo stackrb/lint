@@ -91,7 +91,7 @@ These scripts develop and verify the package itself; consuming projects do not n
 
 | Script | Command |
 | --- | --- |
-| `build` | `tsup` |
+| `build` | `node scripts/clean-distribution.mjs && tsc -p tsconfig.build.json` |
 | `typecheck` | `tsc --noEmit` |
 | `test` | `vitest run test/unit test/integration test/e2e test/memory` |
 | `test:unit` | `vitest run test/unit` |

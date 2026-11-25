@@ -95,7 +95,7 @@ Targets are cumulative: `expo` includes `native`, which includes `react`. Overla
 | `**/*.{js,jsx,mjs,cjs}` | `JS_FILES` | `javascript()` (JSDoc rules) |
 | `**/*.{ts,tsx,mts,cts}` | `TS_FILES` | `typescript()` |
 | `**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}` | `CODE_FILES` | `base()` and every target |
-| `**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}` | `TEST_FILES` | `tests()` |
+| `**/*.*{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}` | `TEST_FILES` | `tests()` and `playwright()` |
 | `**/*.json` | — | `data()` — `json/json` language |
 | `**/*.jsonc` | — | `data()` — `json/jsonc` language |
 | `**/*.json5` | — | `data()` — `json/json5` language |
@@ -112,11 +112,10 @@ Targets are cumulative: `expo` includes `native`, which includes `react`. Overla
 | `**/dist/**` |
 | `**/build/**` |
 | `**/coverage/**` |
-| `**/.vitest/**` |
-| `**/test/results/**` |
 | `**/cache/**` |
-| `package-lock.json` |
-| `.cache-dist-bak` |
+| `**/package-lock.json` |
+| `**/.*/**` |
+| `**/.*` |
 
 ## Rule sources by plugin
 

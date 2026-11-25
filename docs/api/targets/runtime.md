@@ -17,6 +17,7 @@ Builds Node.js globals for code files.
 **Kind**: global function  
 **Returns**: <code>Linter.Config[]</code> - The Node target config block.  
 src: src/targets/runtime.ts:16  
+dist: dist/targets/runtime.js:11
 <a name="browser"></a>
 
 ## browser() ⇒ <code>Linter.Config[]</code>
@@ -25,3 +26,4 @@ Builds browser globals and disables checks for Node-only builtins.
 **Kind**: global function  
 **Returns**: <code>Linter.Config[]</code> - The browser target config block.  
 src: src/targets/runtime.ts:30  
+dist: dist/targets/runtime.js:24

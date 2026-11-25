@@ -1,3 +1,4 @@
+import packageJson from '../../package.json' with { type: 'json' };
 import { describe, expect, it } from 'vitest';
 import defaultConfig, { createConfig, plugin } from '../../src/index.js';
 import { topLevelNames } from './helpers.js';
@@ -25,7 +26,8 @@ describe('plugin facade', () => {
   });
 
   it('exposes plugin metadata and no standalone rules', () => {
-    expect(plugin.meta).toMatchObject({ name: '@stackrb/eslint-config' });
+    expect(plugin.meta).toMatchObject({ name: '@stackrb/eslint-config', namespace: 'stackrb' });
+    expect(plugin.meta.version).toBe(packageJson.version);
     expect(plugin.rules).toEqual({});
   });
 

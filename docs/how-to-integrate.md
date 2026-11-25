@@ -195,7 +195,7 @@ export default createConfig({
 });
 ```
 
-The defaults already exclude `node_modules`, `dist`, `build`, `coverage`, `.vitest`, `test/results`, `cache`, `package-lock.json`, and `.cache-dist-bak`. See the [full ignore list](reference.md#ignore-list).
+The defaults already exclude `node_modules`, `dist`, `build`, `coverage`, `cache`, `package-lock.json`, and dotfiles/dot-directories (`**/.*`, `**/.*/**`). See the [full ignore list](reference.md#ignore-list).
 
 ## Set the Node.js version
 
