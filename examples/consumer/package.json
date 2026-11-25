@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:extending": "eslint . --config eslint.config.extending.mjs"
   },
   "devDependencies": {
     "@stackrb/eslint-config": "file:../..",

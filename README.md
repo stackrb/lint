@@ -112,3 +112,4 @@ Generating docs requires Node.js `>=22.17` (the `mdaics` dev dependency). Consum
 - [Reference](docs/reference.md) — every option, export, glob, ignore, and rule source.
 - [Explanation](docs/explanation.md) — design decisions and compatibility notes.
 - [Generated API reference](docs/api/index.md) — one page per source module, produced from JSDoc by `mdaics` with `src:` and `dist:` line pointers. Run `npm run docs` after changing the public API.
+- [Consumer example](examples/consumer/README.md) — the one-import setup and how to extend an existing flat config.

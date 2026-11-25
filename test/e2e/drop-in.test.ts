@@ -11,6 +11,7 @@ const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const DIST_ENTRY = join(ROOT, 'dist', 'index.js');
 const ESLINT_BIN = join(ROOT, 'node_modules', 'eslint', 'bin', 'eslint.js');
 const EXAMPLE_CONFIG = join(ROOT, 'examples', 'consumer', 'eslint.config.mjs');
+const EXAMPLE_EXTENDING_CONFIG = join(ROOT, 'examples', 'consumer', 'eslint.config.extending.mjs');
 
 const created: string[] = [];
 
@@ -149,5 +150,17 @@ describe('drop-in CLI experience', () => {
 
     expect(result.status).toBe(1);
     expect(result.output).toContain('no-unused-vars');
+  }, 60_000);
+
+  it('loads the extending example config and honours local overrides', () => {
+    const source = readFileSync(EXAMPLE_EXTENDING_CONFIG, 'utf8');
+    const dir = project();
+    write(dir, 'eslint.config.mjs', source.replace('@stackrb/eslint-config', pathToFileURL(DIST_ENTRY).href));
+    write(dir, 'sample.ts', 'export const value: any = 1;\n');
+
+    const result = runEslint(dir);
+
+    expect(result.status).toBe(0);
+    expect(result.output).not.toContain('@typescript-eslint/no-explicit-any');
   }, 60_000);
 });

@@ -42,6 +42,46 @@ Optionally add a script to your `package.json`:
 }
 ```
 
+## Add the config to an existing ESLint config
+
+Keep your current flat config and compose the shared blocks into it. Put the shared config first, then your own blocks, so your rules are applied last and win:
+
+```js
+// eslint.config.mjs
+import { createConfig } from '@stackrb/eslint-config';
+
+export default [
+  ...createConfig({ target: 'react' }),
+  {
+    files: ['src/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+];
+```
+
+For the default `node` target you can spread the one-import default instead:
+
+```js
+import config from '@stackrb/eslint-config';
+
+export default [
+  ...config,
+  { files: ['src/**/*.ts'], rules: { 'no-console': 'error' } },
+];
+```
+
+`extraRules` is a shorter alternative for a single block of overrides and is applied after everything, including Prettier:
+
+```js
+export default createConfig({
+  extraRules: { '@typescript-eslint/no-explicit-any': 'off' },
+});
+```
+
+A complete runnable version is in [`examples/consumer/eslint.config.extending.mjs`](../examples/consumer/eslint.config.extending.mjs); run it with `npm run lint:extending` from that directory.
+
 ## Choose a target
 
 Pass `target` to `createConfig`:

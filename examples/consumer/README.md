@@ -12,3 +12,27 @@ npm run lint
 ```
 
 `npm install` links the config from `file:../..`.
+
+## Extending an existing config
+
+If you already have an `eslint.config.mjs`, keep it and compose the shared config into it. `eslint.config.extending.mjs` shows the pattern: spread `createConfig(...)` first, then your existing blocks so your rules win.
+
+```sh
+npm run lint:extending
+```
+
+For the default `node` target, the one-import form works too:
+
+```js
+import config from '@stackrb/eslint-config';
+
+export default [
+  ...config,
+  {
+    files: ['src/**/*.ts'],
+    rules: { 'no-console': 'error' },
+  },
+];
+```
+
+You can also pass your overrides through `createConfig({ extraRules })`; see the [how-to guide](../../docs/how-to-integrate.md#add-the-config-to-an-existing-eslint-config).
