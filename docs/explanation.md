@@ -101,6 +101,10 @@ Snapshot as of the 0.1.0 release (2026-11-24): `npm audit` reports five advisori
 
 The original internal config had several mistakes that prevented rules from taking effect: the JavaScript file glob did not actually match JavaScript files, the test-file glob contained a typo, and Vitest rules were not actually enabled. The unicorn, stylistic, depend, and deprecate plugins were present but not functional. Version 0.1.0 ships with these corrected; see the [changelog](../CHANGELOG.md) for the list.
 
+## Generated API reference
+
+The hand-written docs follow Diátaxis and explain how to use the package. They are complemented by `docs/api/`, generated from JSDoc by [`mdaics`](https://www.npmjs.com/package/mdaics): one Markdown page per source module, with the resolved parameter types and `src:`/`dist:` line pointers into the built artifact. The generator is configured in `mdaics.config.mjs` to write to `docs/api` rather than `docs`, so it never overwrites the authored guides. `npm run docs` builds first (the `dist:` pointers need a real build and source map) and then normalises an internal TypeScript type name in the output; `npm run docs:check` regenerates and fails if the committed files are stale. The generator is a dev-only tool requiring Node.js 22.17 or newer. Because `tsup` emits a single `dist/index.js` rather than a mirrored source tree, `mdaics` cannot resolve a per-module build file and omits the `dist:` pointer; the `src:` pointers remain exact.
+
 ## Future improvements
 
 Ideas under consideration — none are part of the current API or a commitment to implement:

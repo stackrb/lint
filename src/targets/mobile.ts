@@ -8,6 +8,10 @@ import { defineConfig } from 'eslint/config';
 import { CODE_FILES } from '../constants.js';
 import { react } from './react.js';
 
+/**
+ * Builds the React Native target on top of the React config.
+ * @returns The native target config blocks.
+ */
 export function native(): Linter.Config[] {
   return defineConfig([
     ...react(),
@@ -26,6 +30,10 @@ export function native(): Linter.Config[] {
   ]);
 }
 
+/**
+ * Builds the Expo target on top of the React Native config.
+ * @returns The Expo target config blocks.
+ */
 export function expo(): Linter.Config[] {
   return defineConfig([
     ...native(),

@@ -98,8 +98,12 @@ These scripts develop and verify the package itself; consuming projects do not n
 | `test:memory` | `vitest run test/memory` |
 | `test:perf` | `vitest bench --run test/performance` |
 | `lint` | `npm run build && eslint .` |
+| `docs` | `npm run build && mdaics && node scripts/clean-api-documents.mjs` |
+| `docs:check` | regenerate the API reference and fail if it differs from the committed files |
 | `audit` | `npm audit --audit-level=high` |
-| `check` | `npm run typecheck && npm run test && npm run lint && npm run audit && npm run build` |
+| `check` | `npm run typecheck && npm run test && npm run lint && npm run audit` |
+
+Generating docs requires Node.js `>=22.17` (the `mdaics` dev dependency). Consumers are unaffected.
 
 ## Documentation
 
@@ -107,3 +111,4 @@ These scripts develop and verify the package itself; consuming projects do not n
 - [How-to guide](docs/how-to-integrate.md) — recipes for integrating and customising the config.
 - [Reference](docs/reference.md) — every option, export, glob, ignore, and rule source.
 - [Explanation](docs/explanation.md) — design decisions and compatibility notes.
+- [Generated API reference](docs/api/index.md) — one page per source module, produced from JSDoc by `mdaics` with `src:` and `dist:` line pointers. Run `npm run docs` after changing the public API.

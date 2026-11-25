@@ -8,6 +8,10 @@ import { defineConfig } from 'eslint/config';
 import { CODE_FILES } from '../constants.js';
 import { BROWSER_GLOBALS } from './runtime.js';
 
+/**
+ * Builds React, React Hooks and JSX accessibility presets with browser globals.
+ * @returns The React target config blocks.
+ */
 export function react(): Linter.Config[] {
   return defineConfig({
     extends: [

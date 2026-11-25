@@ -46,6 +46,11 @@ function normalizeTargets(target: Options['target']): readonly Target[] {
   return [...selected];
 }
 
+/**
+ * Builds the complete ESLint flat config in the documented composition order.
+ * @param options - Targets, ignores, globals, rules and other customisations.
+ * @returns {Array} The ordered config blocks consumed by ESLint.
+ */
 export function createConfig(options: Options = {}): Linter.Config[] {
   const targets = normalizeTargets(options.target);
   const targetConfigs = targets.flatMap((target) => TARGETS[target].build());
@@ -87,6 +92,9 @@ function preset(name: 'recommended' | Target): Linter.Config[] {
   return built;
 }
 
+/**
+ * Plugin-shaped facade exposing lazily built, cached presets for `extends`.
+ */
 export const plugin = {
   configs: {
     get browser() {

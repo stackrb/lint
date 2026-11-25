@@ -51,6 +51,11 @@ function deprecateRules(deprecations: readonly DeprecationRule[]): Linter.RulesR
   return rules;
 }
 
+/**
+ * Builds the shared base config: TypeScript parser, Node settings and common plugin presets.
+ * @param options - Node version, deprecation and dependency-ban options.
+ * @returns The base config blocks.
+ */
 export function base(options: Options = {}): Linter.Config[] {
   const rules: Linter.RulesRecord = {};
 

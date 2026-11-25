@@ -9,6 +9,10 @@ import { CODE_FILES } from '../constants.js';
 export const BROWSER_GLOBALS = Object.freeze({ ...globals.browser, ...globals.builtin });
 const NODE_GLOBALS = Object.freeze({ ...globals.node, ...globals.builtin });
 
+/**
+ * Builds Node.js globals for code files.
+ * @returns The Node target config block.
+ */
 export function node(): Linter.Config[] {
   return defineConfig({
     files: [CODE_FILES],
@@ -19,6 +23,10 @@ export function node(): Linter.Config[] {
   });
 }
 
+/**
+ * Builds browser globals and disables checks for Node-only builtins.
+ * @returns The browser target config block.
+ */
 export function browser(): Linter.Config[] {
   return defineConfig({
     files: [CODE_FILES],

@@ -37,5 +37,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Generated API docs
+        run: npm run docs:check
+
       - name: Audit
         run: npm run audit

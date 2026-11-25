@@ -42,6 +42,8 @@
     "test:memory": "vitest run test/memory",
     "test:perf": "vitest bench --run test/performance",
     "lint": "npm run build && eslint .",
+    "docs": "npm run build && mdaics && node scripts/clean-api-documents.mjs",
+    "docs:check": "npm run docs && git diff --exit-code -- docs/api",
     "audit": "npm audit --audit-level=high",
     "check": "npm run typecheck && npm run test && npm run lint && npm run audit"
   },
@@ -56,12 +58,12 @@
   },
   "dependencies": {
     "@deslint/eslint-plugin": "0.10.0",
-    "@eslint-react/eslint-plugin": "5.30.6",
-    "@react-native/eslint-plugin": "0.88.1",
     "@eslint-community/eslint-plugin-eslint-comments": "4.8.1",
+    "@eslint-react/eslint-plugin": "5.30.6",
     "@eslint/js": "10.0.1",
     "@eslint/json": "2.1.1",
     "@eslint/markdown": "9.0.0",
+    "@react-native/eslint-plugin": "0.88.1",
     "@stylistic/eslint-plugin": "6.0.1",
     "@typescript-eslint/parser": "8.74.0",
     "@vitest/eslint-plugin": "1.6.28",
@@ -87,6 +89,7 @@
   "devDependencies": {
     "@types/node": "26.6.6",
     "eslint": "10.15.0",
+    "mdaics": "1.0.0",
     "tsup": "9.0.0",
     "typescript": "6.0.2",
     "vite": "8.3.8",

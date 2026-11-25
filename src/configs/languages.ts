@@ -12,6 +12,10 @@ import type { Options } from '../types.js';
 import { JS_FILES, TS_FILES } from '../constants.js';
 import { bannedDependenciesRule } from './base.js';
 
+/**
+ * Builds JSDoc rules for JavaScript files.
+ * @returns The JavaScript config blocks.
+ */
 export function javascript(): Linter.Config[] {
   return defineConfig({
     extends: [jsdoc({ config: 'flat/recommended' })],
@@ -20,6 +24,11 @@ export function javascript(): Linter.Config[] {
   });
 }
 
+/**
+ * Builds TypeScript rules, optionally with type-aware checks.
+ * @param options - Set `typed` to enable `parserOptions.projectService`.
+ * @returns The TypeScript config blocks.
+ */
 export function typescript(options: Options = {}): Linter.Config[] {
   return defineConfig({
     extends: [
@@ -39,6 +48,11 @@ const JSON_LANGUAGES = [
   { extension: 'json5', language: 'json/json5' },
 ] as const;
 
+/**
+ * Builds the JSON, JSONC and JSON5 language configs.
+ * @param options - Banned dependencies are enforced on `.json` files only.
+ * @returns The data-file config blocks.
+ */
 export function data(options: Options = {}): Linter.Config[] {
   const banned = options.bannedDependencies?.length ? bannedDependenciesRule(options.bannedDependencies) : undefined;
 
@@ -58,6 +72,10 @@ export function data(options: Options = {}): Linter.Config[] {
   );
 }
 
+/**
+ * Builds the GFM Markdown config.
+ * @returns The Markdown config blocks.
+ */
 export function markdown(): Linter.Config[] {
   return defineConfig({
     extends: ['markdown/recommended'],
