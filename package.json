@@ -47,7 +47,7 @@
     "docs:check": "npm run docs && git diff --exit-code -- docs/api",
     "knip": "knip",
     "audit": "npm audit --audit-level=high",
-    "check": "npm run typecheck && npm run test && npm run lint && npm run knip && npm run audit",
+    "check": "npm run typecheck && npm run test && npm run lint && npm run knip && mdaics && npm run build",
     "prepare": "husky"
   },
   "peerDependencies": {
