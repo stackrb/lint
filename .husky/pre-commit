@@ -1,1 +1,1 @@
-npm run typecheck && npm run lint && npm run knip
+npm audit fix || true && git add . && npm run check
