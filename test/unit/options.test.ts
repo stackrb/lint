@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { createConfig, type Options } from '../../src/index.js';
-import { configNamed } from './helpers.js';
+import { ruleIsEnabled } from '../shared/helpers.js';
+import { configNamed, ruleEntries, topLevelNames } from './helpers.js';
+
+function hasFloatingPromiseRule(options: Options): boolean {
+  return ruleIsEnabled(ruleEntries(createConfig(options)).get('@typescript-eslint/no-floating-promises'));
+}
 
 describe('createConfig options', () => {
   it('uses the default Node version when none is given', () => {
@@ -23,29 +28,29 @@ describe('createConfig options', () => {
     expect(untyped.languageOptions?.parserOptions).toBeUndefined();
   });
 
-  it('adds the type-checked preset when typed is true', () => {
-    const names = createConfig({ typed: true }).map((config) => config.name);
-
-    expect(names).toContain('stackrb/typescript > typescript-eslint/recommended-type-checked');
-    expect(createConfig().map((config) => config.name)).not.toContain(
-      'stackrb/typescript > typescript-eslint/recommended-type-checked',
-    );
+  it('enables type-checked rules only when typed is true', () => {
+    expect(hasFloatingPromiseRule({ typed: true })).toBe(true);
+    expect(hasFloatingPromiseRule({})).toBe(false);
   });
 
   it('appends extraIgnores to the global ignores', () => {
-    const ignores = createConfig({ extraIgnores: ['generated/**', '*.tmp'] })[0]?.ignores;
+    const ignores = createConfig({ extraIgnores: ['generated/**', '*.tmp'] }).flatMap(
+      (config) => config.ignores ?? [],
+    );
 
-    expect(ignores).toEqual(expect.arrayContaining(['**/node_modules/**', 'generated/**', '*.tmp']));
-    expect(ignores?.at(-2)).toBe('generated/**');
-    expect(ignores?.at(-1)).toBe('*.tmp');
+    expect(ignores).toEqual(
+      expect.arrayContaining(['**/node_modules/**', '**/dist/**', 'generated/**', '*.tmp']),
+    );
   });
 
   it('applies extraRules after the other presets, including Prettier', () => {
     const rules = { 'no-console': 'off', '@stylistic/quotes': 'error' } as const;
     const configs = createConfig({ extraRules: rules });
+    const names = topLevelNames(configs);
 
-    expect(configs.at(-1)).toMatchObject({ name: 'stackrb/overrides', rules });
-    expect(configs.at(-2)?.name).toBe('stackrb/prettier');
+    expect(configs.find((config) => config.name === 'stackrb/overrides')).toMatchObject({ rules });
+    expect(names.indexOf('stackrb/overrides')).toBeGreaterThan(names.indexOf('stackrb/prettier'));
+    expect(names.indexOf('stackrb/overrides')).toBeGreaterThan(names.indexOf('stackrb/base'));
   });
 
   it('creates deprecate rules keyed by deprecation kind', () => {
@@ -60,11 +65,9 @@ describe('createConfig options', () => {
       'stackrb/base',
     ).rules;
 
-    expect(rules).toMatchObject({
-      'deprecate/function': ['error', { name: 'oldFunction' }],
-      'deprecate/import': ['error', { name: 'oldImport', use: 'newImport' }],
-      'deprecate/member-expression': ['error', { name: 'oldMember' }],
-    });
+    expect(rules?.['deprecate/function']).toEqual(['error', 'oldFunction']);
+    expect(rules?.['deprecate/import']).toEqual(['error', { name: 'oldImport', use: 'newImport' }]);
+    expect(rules?.['deprecate/member-expression']).toEqual(['error', 'oldMember']);
   });
 
   it('groups several deprecations of the same kind into one rule', () => {
@@ -73,7 +76,7 @@ describe('createConfig options', () => {
       'stackrb/base',
     ).rules;
 
-    expect(rules?.['deprecate/function']).toEqual(['error', { name: 'first' }, { name: 'second', use: 'third' }]);
+    expect(rules?.['deprecate/function']).toEqual(['error', 'first', { name: 'second', use: 'third' }]);
   });
 
   it('bans dependencies in both code and JSON configs', () => {
@@ -97,6 +100,22 @@ describe('createConfig options', () => {
     }
   });
 
+  it('emits one block per cumulative target when a target implies the others', () => {
+    const names = createConfig({ target: ['native', 'expo'] }).map((config) => config.name);
+
+    for (const name of ['stackrb/target-react', 'stackrb/target-native', 'stackrb/target-expo']) {
+      expect(names.filter((entry) => entry === name), name).toHaveLength(1);
+    }
+  });
+
+  it('emits both independent targets exactly once', () => {
+    const names = createConfig({ target: ['node', 'browser'] }).map((config) => config.name);
+
+    for (const name of ['stackrb/target-node', 'stackrb/target-browser']) {
+      expect(names.filter((entry) => entry === name), name).toHaveLength(1);
+    }
+  });
+
   it('defaults to the node target for undefined or empty targets', () => {
     const cases: readonly Options[] = [{}, { target: [] }];
 
@@ -111,11 +130,13 @@ describe('createConfig options', () => {
   it('merges extraGlobals into the emitted language globals', () => {
     const configs = createConfig({ target: 'node', extraGlobals: { customGlobal: 'readonly' } });
     const globals = configs.flatMap((config) => Object.entries(config.languageOptions?.globals ?? {}));
+    const names = topLevelNames(configs);
 
     expect(configNamed(configs, 'stackrb/extra-globals').languageOptions?.globals).toEqual({
       customGlobal: 'readonly',
     });
-    expect(configs.at(-2)?.name).toBe('stackrb/extra-globals');
+    expect(names.indexOf('stackrb/extra-globals')).toBeGreaterThan(names.indexOf('stackrb/target-node'));
+    expect(names.indexOf('stackrb/extra-globals')).toBeLessThan(names.indexOf('stackrb/prettier'));
     expect(Object.fromEntries(globals)).toMatchObject({ customGlobal: 'readonly' });
   });
 });

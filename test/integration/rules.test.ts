@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ruleIds, ruleIsEnabled, withProject } from './helpers.js';
+import { ruleIsEnabled } from '../shared/helpers.js';
+import { ruleIds, withProject } from './helpers.js';
 
 const DUPLICATE_TITLE_SOURCE = `import { describe, expect, it } from 'vitest';
 
@@ -39,5 +40,22 @@ describe('rule selection', () => {
       const config = await project.configFor('src/app.js');
       expect(ruleIsEnabled(config.rules?.['n/no-unsupported-features/node-builtins'])).toBe(true);
     });
+  });
+
+  it('keeps code-only extraRules out of JSON and Markdown linting', async () => {
+    await withProject(
+      { configOptions: { extraRules: { 'n/no-missing-import': 'error' } } },
+      async (project) => {
+        await project.write('data/valid.json', '{ "alpha": 1 }\n');
+        await project.write('README.md', '# Title\n\nSome prose.\n');
+
+        const results = await project.lint(['data/valid.json', 'README.md']);
+        expect(results).toHaveLength(2);
+        for (const result of results) {
+          expect(result.messages.some((message) => Boolean(message.fatal))).toBe(false);
+          expect(ruleIds([result])).not.toContain('n/no-missing-import');
+        }
+      },
+    );
   });
 });

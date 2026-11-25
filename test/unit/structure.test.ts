@@ -1,10 +1,8 @@
 import type { Linter } from 'eslint';
 import { describe, expect, it } from 'vitest';
-import {
-  createConfig,
-  type Target,
-} from '../../src/index.js';
-import { configNamed, isEnabled, pluginNames, ruleEntries } from './helpers.js';
+import { createConfig, type Target } from '../../src/index.js';
+import { ruleIsEnabled } from '../shared/helpers.js';
+import { configNamed, pluginNames, ruleEntries, topLevelNames } from './helpers.js';
 
 const JS_FILES = '**/*.{js,jsx,mjs,cjs}';
 const TS_FILES = '**/*.{ts,tsx,mts,cts}';
@@ -36,11 +34,46 @@ describe('config structure', () => {
 
   it('starts with global ignores containing the defaults', () => {
     const configs = createConfig();
-    const [first] = configs;
+    const ignores = configs.find((config) => config.ignores !== undefined);
 
-    expect(first?.name).toMatch(/^globalIgnores/);
-    expect(first?.ignores).toEqual(expect.arrayContaining(DEFAULT_IGNORES));
+    expect(configs[0]?.ignores).toEqual(expect.arrayContaining(DEFAULT_IGNORES));
+    expect(ignores?.ignores).toEqual(expect.arrayContaining(DEFAULT_IGNORES));
     expect(configs.slice(1).some((config) => config.ignores !== undefined)).toBe(false);
+  });
+
+  it('emits all config blocks in the documented order when every option is set', () => {
+    const configs = createConfig({
+      target: ['node', 'browser', 'react', 'native', 'expo'],
+      nodeVersion: '22.14.0',
+      typed: true,
+      extraIgnores: ['generated/**'],
+      deprecations: [{ name: 'legacyFunction' }],
+      bannedDependencies: ['lodash'],
+      extraGlobals: { customGlobal: 'readonly' },
+      extraRules: { 'no-console': 'off' },
+    });
+
+    expect(topLevelNames(configs)).toEqual([
+      'stackrb/base',
+      'stackrb/javascript',
+      'stackrb/typescript',
+      'stackrb/tests',
+      'stackrb/json',
+      'stackrb/jsonc',
+      'stackrb/json5',
+      'stackrb/markdown',
+      'stackrb/target-node',
+      'stackrb/target-browser',
+      'stackrb/target-react',
+      'stackrb/target-native',
+      'stackrb/target-expo',
+      'stackrb/extra-globals',
+      'stackrb/prettier',
+      'stackrb/overrides',
+    ]);
+    expect(configs.find((config) => config.ignores !== undefined)?.ignores).toEqual(
+      expect.arrayContaining([...DEFAULT_IGNORES, 'generated/**']),
+    );
   });
 
   it('uses the expected file globs for each language and test config', () => {
@@ -56,8 +89,15 @@ describe('config structure', () => {
     expect(configNamed(configs, 'stackrb/markdown').files).toEqual(['**/*.md']);
   });
 
-  it('puts the Prettier config last in the default config', () => {
-    expect(createConfig().at(-1)?.name).toBe('stackrb/prettier');
+  it('puts the Prettier config after every other block in the default config', () => {
+    const names = topLevelNames(createConfig());
+    const prettierIndex = names.indexOf('stackrb/prettier');
+
+    expect(prettierIndex).toBeGreaterThan(-1);
+    const otherNames = names.filter((entry) => entry !== 'stackrb/prettier');
+    for (const name of otherNames) {
+      expect(names.indexOf(name), name).toBeLessThan(prettierIndex);
+    }
   });
 
   it('registers the base plugins', () => {
@@ -116,11 +156,21 @@ describe('config structure', () => {
     ];
 
     for (const rule of expected) {
-      expect(isEnabled(entries.get(rule)), rule).toBe(true);
+      expect(ruleIsEnabled(entries.get(rule)), rule).toBe(true);
     }
   });
 
-  it('registers target plugins and enables their rules', () => {
+  it('reports unused disable directives from the base config', () => {
+    expect(configNamed(createConfig(), 'stackrb/base').linterOptions).toMatchObject({
+      reportUnusedDisableDirectives: true,
+    });
+  });
+
+  it('turns off the Unicorn documentation asterisk rule', () => {
+    expect(ruleEntries(createConfig()).get('unicorn/no-asterisk-prefix-in-documentation-comments')).toBe('off');
+  });
+
+  it('registers target plugins and scopes their configs to code files', () => {
     const cases: ReadonlyArray<{
       readonly target: Target;
       readonly plugins: readonly string[];
@@ -151,7 +201,7 @@ describe('config structure', () => {
         expect(names.has(plugin), `${target}: plugin ${plugin}`).toBe(true);
       }
       for (const rule of rules) {
-        expect(isEnabled(entries.get(rule)), `${target}: rule ${rule}`).toBe(true);
+        expect(ruleIsEnabled(entries.get(rule)), `${target}: rule ${rule}`).toBe(true);
       }
     }
   });

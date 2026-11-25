@@ -1,17 +1,23 @@
 import type { Linter } from 'eslint';
 import { describe, expect, it } from 'vitest';
-import { createConfig } from '../../src/index.js';
+import { createConfig, type Options, type Target } from '../../src/index.js';
 import { hasGc, heapUsedBytes, mb, mean } from './helpers.js';
 
-const TARGETS = ['node', 'browser', 'react', 'native', 'expo'] as const;
+const TARGETS: readonly Target[] = ['node', 'browser', 'react', 'native', 'expo'];
 const ITERATIONS = 200;
 const SAMPLE_EVERY = 25;
+
+function optionsFor(index: number): Options {
+  const target = TARGETS[index % TARGETS.length];
+  return target === undefined ? {} : { target };
+}
 
 function structure(configs: readonly Linter.Config[]): string {
   return JSON.stringify(
     configs.map((config) => ({
-      // ESLint's globalIgnores() appends a module-level counter to the name.
-      name: config.name === undefined ? null : config.name.replace(/^globalIgnores \d+$/, 'globalIgnores'),
+      // The ignores block may be renamed or numbered; identify it by its contents.
+      name: config.ignores === undefined ? (config.name ?? null) : null,
+      ignores: config.ignores === undefined ? null : [...config.ignores],
       rules: config.rules === undefined ? null : Object.keys(config.rules).sort(),
     })),
   );
@@ -21,12 +27,12 @@ describe('createConfig memory', () => {
   it('does not grow the heap unboundedly across repeated calls for every target', () => {
     // Warm up module/JIT caches so the baseline is not first-call cost.
     for (let i = 0; i < 8; i += 1) {
-      createConfig({ target: TARGETS[i % TARGETS.length] });
+      createConfig(optionsFor(i));
     }
 
     const samples: number[] = [];
     for (let i = 0; i < ITERATIONS; i += 1) {
-      createConfig({ target: TARGETS[i % TARGETS.length] });
+      createConfig(optionsFor(i));
       if (i % SAMPLE_EVERY === 0) {
         samples.push(heapUsedBytes());
       }
@@ -46,7 +52,7 @@ describe('createConfig memory', () => {
     const first = structure(createConfig(options));
 
     for (let i = 0; i < ITERATIONS; i += 1) {
-      createConfig({ target: TARGETS[i % TARGETS.length] });
+      createConfig(optionsFor(i));
     }
 
     expect(structure(createConfig(options))).toBe(first);

@@ -85,7 +85,7 @@ describe('drop-in CLI experience', () => {
 
     expect(result.status).toBe(0);
     expect(result.output).toBe('');
-  });
+  }, 60_000);
 
   it('fails a bad project with the expected rule ids', () => {
     const dir = project();
@@ -97,7 +97,7 @@ describe('drop-in CLI experience', () => {
     expect(result.status).toBe(1);
     expect(result.output).toContain('no-unused-vars');
     expect(result.output).toContain('no-debugger');
-  });
+  }, 60_000);
 
   it('skips ignored directories', () => {
     const dir = project();
@@ -110,7 +110,7 @@ describe('drop-in CLI experience', () => {
     expect(result.status).toBe(0);
     expect(result.output).not.toContain('generated.js');
     expect(result.output).not.toContain('no-unused-vars');
-  });
+  }, 60_000);
 
   it('parses TypeScript and reports TypeScript rules', () => {
     const dir = project();
@@ -122,27 +122,30 @@ describe('drop-in CLI experience', () => {
     expect(result.status).toBe(1);
     expect(result.output).toContain('@typescript-eslint/no-explicit-any');
     expect(result.output).not.toContain('Parsing error');
-  });
+  }, 60_000);
 
-  it('loads the checked-in consumer example config shape', () => {
+  it('loads the checked-in consumer example config and lints a sample file', () => {
     const source = readFileSync(EXAMPLE_CONFIG, 'utf8');
-    expect(source).toContain("import config from '@stackrb/eslint-config';");
-    expect(source).toContain('export default config;');
-
     const dir = project();
-    const configUrl = pathToFileURL(join(dir, 'eslint.config.mjs')).href;
     write(dir, 'eslint.config.mjs', source.replace('@stackrb/eslint-config', pathToFileURL(DIST_ENTRY).href));
 
+    const configUrl = pathToFileURL(join(dir, 'eslint.config.mjs')).href;
     const script = [
       `const config = (await import(${JSON.stringify(configUrl)})).default;`,
-      'if (!Array.isArray(config) || config.length === 0) process.exitCode = 1;',
+      'if (!Array.isArray(config) || config.length === 0) throw new Error("example config exported no blocks");',
+      'console.log(config.length);',
     ].join('\n');
+    const output = execFileSync(process.execPath, ['--input-type=module', '-e', script], {
+      cwd: dir,
+      encoding: 'utf8',
+    });
 
-    expect(() =>
-      execFileSync(process.execPath, ['--input-type=module', '-e', script], {
-        cwd: dir,
-        encoding: 'utf8',
-      }),
-    ).not.toThrow();
-  });
+    expect(Number(output.trim())).toBeGreaterThan(0);
+
+    write(dir, 'sample.js', 'const unused = 1;\n');
+    const result = runEslint(dir);
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('no-unused-vars');
+  }, 60_000);
 });

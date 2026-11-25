@@ -4,20 +4,20 @@ This document explains why `@stackrb/eslint-config` is built the way it is. It i
 
 ## A shareable config, not a rule plugin
 
-The `plugin` export looks like an ESLint plugin — it has `meta`, `configs`, and a `rules` key — but `rules` is deliberately empty. The package does not invent new lint rules. Its value is the *arrangement* of rules that already exist in well-maintained plugins: which presets to enable, which files they apply to, which globals are in scope, and which conflicting rules to switch off.
+The `plugin` export looks like an ESLint plugin — it has `meta` (`name`, `namespace: 'stackrb'`, and `version` from `package.json`), `configs`, and a `rules` key — but `rules` is deliberately empty. The package does not invent new lint rules. Its value is the *arrangement* of rules that already exist in well-maintained plugins: which presets to enable, which files they apply to, which globals are in scope, and which conflicting rules to switch off.
 
 That distinction matters for how you consume it:
 
 - A rule plugin contributes rules you reference by name in your own config.
 - A shareable config contributes a ready-made `Linter.Config[]` array you export directly.
 
-Because this package is the latter, the shortest path is the one-import API:
+Because this package is the latter, the shortest path is the one-import API, re-exported directly:
 
 ```js
-import config from '@stackrb/eslint-config';
-
-export default config;
+export { default } from '@stackrb/eslint-config';
 ```
+
+The direct re-export is the same single import; it avoids `unicorn/prefer-export-from`, which would otherwise flag an import-then-export pair in `eslint.config.mjs`.
 
 The `plugin` facade exists for tooling and consumers that prefer preset names (`plugin.configs.react` and friends). It points at the very same arrays produced by `createConfig`, so the two styles cannot drift apart.
 
@@ -38,15 +38,9 @@ The result is a preset with no knowledge of any particular repository, and there
 
 `react`, `native`, and `expo` are not independent alternatives. A React Native app is a React app with additional globals and rules; an Expo app is a React Native app with a few more rules. Encoding that relationship once keeps each target small and avoids contradictory settings.
 
-| Target | Built from |
-| --- | --- |
-| `node` | Base config + Node globals |
-| `browser` | Base config + browser globals |
-| `react` | Browser-style globals + React, hooks, and accessibility presets |
-| `native` | `react` + React Native plugin rules and globals |
-| `expo` | `native` + Expo plugin rules |
+The full per-target breakdown is in the [Targets table](reference.md#targets); this document covers only the reasoning.
 
-The practical consequence: `createConfig` deduplicates the target set before building configs. If a selected target is implied by another selected target, it is removed, so `['native', 'expo']` produces only the `expo` config and `['react', 'native']` produces only `native`. Combining genuinely independent targets such as `['node', 'browser']` still applies both.
+The practical consequence: `createConfig` deduplicates the target set before building configs. If a selected target is implied by another selected target, it is removed — but the surviving target still emits its complete chain. So `['native', 'expo']` produces a single `expo` chain containing the `react`, `native`, and `expo` blocks (not one lone block), and `['react', 'native']` produces a single `native` chain. Combining genuinely independent targets such as `['node', 'browser']` still applies both.
 
 ## Why composition order is deliberate
 
@@ -101,8 +95,24 @@ The exported config disables `unicorn/no-asterisk-prefix-in-documentation-commen
 
 ### Known dependency advisories
 
-`npm audit` reports five transitive advisories at the time of release: three low and two moderate, none high or critical, so the `audit` script (which gates at `high`) passes. They come from `katex` via `@eslint/markdown` and from `minimatch` via `eslint-plugin-sonarjs`. `npm audit fix --force` would downgrade those direct dependencies to versions that may not support ESLint 10, so the downgrade is deliberately not applied. Re-check on each dependency update and adopt upstream fixes when they are compatible.
+Snapshot as of the 0.1.0 release (2026-11-24): `npm audit` reports five advisories — three low and two moderate, none high or critical — so the `audit` script (gated at `high`) passes. All five are **transitive**: the vulnerable packages are `katex` and `minimatch`, reached through the direct dependencies `@eslint/markdown` and `eslint-plugin-sonarjs` respectively. `npm audit fix --force` proposes breaking upgrades of those direct dependencies to versions that may not support ESLint 10, so the proposed fix is deliberately not applied. Re-run the audit on each dependency update and adopt upstream fixes when compatible.
 
 ### Corrections carried into the initial release
 
 The original internal config had several mistakes that prevented rules from taking effect: the JavaScript file glob did not actually match JavaScript files, the test-file glob contained a typo, and Vitest rules were not actually enabled. The unicorn, stylistic, depend, and deprecate plugins were present but not functional. Version 0.1.0 ships with these corrected; see the [changelog](../CHANGELOG.md) for the list.
+
+## Future improvements
+
+Ideas under consideration — none are part of the current API or a commitment to implement:
+
+- Lazy/subpath plugin loading so consumers load only the plugins their target needs.
+- A composer-style API for assembling configs in explicit phases.
+- Runtime validation of option values with clear error messages.
+- A `tsconfigRootDir` option for type-aware projects outside the config directory.
+- Per-file-type React scoping instead of one broad React glob.
+- Replacing `eslint-plugin-jsx-a11y` with `jsx-a11y-x` and `eslint-plugin-deprecate` with `@e18e/deprecate` once compatible.
+- npm `overrides` to clear the transitive advisories without breaking upgrades.
+- A documented versioning policy for when presets change.
+- Node 20 CI coverage alongside the current Node versions.
+- SHA-pinned GitHub Actions in CI.
+- Stored performance baselines to guard against config-construction regressions.

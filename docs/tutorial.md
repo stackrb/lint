@@ -30,12 +30,10 @@ npm install --save-dev eslint @stackrb/eslint-config typescript
 Create `eslint.config.mjs` in the project root:
 
 ```js
-import config from '@stackrb/eslint-config';
-
-export default config;
+export { default } from '@stackrb/eslint-config';
 ```
 
-This is the whole configuration. The default export is `createConfig()` with no options, which means the `node` target with sensible defaults for JavaScript, TypeScript, tests, JSON, and Markdown.
+This is the whole configuration, using the same one-import API. The direct re-export avoids `unicorn/prefer-export-from`, which would otherwise flag the import-then-export form when this config lints `eslint.config.mjs`. The default export is `createConfig()` with no options, which means the `node` target with sensible defaults for JavaScript, TypeScript, tests, JSON, and Markdown.
 
 ## 4. Write a TypeScript file with a mistake
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ruleIds, ruleIsEnabled, withProject } from './helpers.js';
+import { ruleIsEnabled } from '../shared/helpers.js';
+import { ruleIds, withProject } from './helpers.js';
 
 describe('Prettier compatibility', () => {
   it('disables stylistic rules that conflict with Prettier', async () => {

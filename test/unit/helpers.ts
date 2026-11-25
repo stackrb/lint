@@ -32,10 +32,10 @@ export function ruleEntries(
   return entries;
 }
 
-export function isEnabled(entry: Linter.RuleEntry<unknown[]> | undefined): boolean {
-  if (entry === undefined) {
-    return false;
-  }
-  const severity = Array.isArray(entry) ? entry[0] : entry;
-  return severity !== 0 && severity !== 'off';
+// Extended configs are generated implementation details; ignores blocks may be renamed.
+export function topLevelNames(configs: readonly Linter.Config[]): string[] {
+  return configs
+    .filter((config) => config.ignores === undefined)
+    .map((config) => config.name)
+    .filter((name): name is string => name !== undefined && name.startsWith('stackrb/') && !name.includes(' > '));
 }

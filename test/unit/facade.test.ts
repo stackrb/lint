@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { plugin } from '../../src/index.js';
+import defaultConfig, { createConfig, plugin } from '../../src/index.js';
+import { topLevelNames } from './helpers.js';
+
+const PRESETS = ['browser', 'expo', 'native', 'node', 'react', 'recommended'] as const;
+
+const GETTERS = [
+  () => plugin.configs.browser,
+  () => plugin.configs.expo,
+  () => plugin.configs.native,
+  () => plugin.configs.node,
+  () => plugin.configs.react,
+  () => plugin.configs.recommended,
+];
 
 describe('plugin facade', () => {
   it('exposes all preset configs', () => {
-    expect(Object.keys(plugin.configs).sort()).toEqual([
-      'browser',
-      'expo',
-      'native',
-      'node',
-      'react',
-      'recommended',
-    ]);
+    expect(Object.keys(plugin.configs).sort()).toEqual([...PRESETS].sort());
   });
 
   it('exposes a non-empty config array for every preset', () => {
@@ -20,7 +25,21 @@ describe('plugin facade', () => {
   });
 
   it('exposes plugin metadata and no standalone rules', () => {
-    expect(plugin.meta).toEqual({ name: '@stackrb/eslint-config' });
+    expect(plugin.meta).toMatchObject({ name: '@stackrb/eslint-config' });
     expect(plugin.rules).toEqual({});
+  });
+
+  it('uses the default config for the recommended preset', () => {
+    expect(plugin.configs.recommended).toBe(defaultConfig);
+  });
+
+  it('returns the same array on every preset access', () => {
+    for (const get of GETTERS) {
+      expect(get()).toBe(get());
+    }
+  });
+
+  it('builds the react preset from the same config blocks as createConfig', () => {
+    expect(topLevelNames(plugin.configs.react)).toEqual(topLevelNames(createConfig({ target: 'react' })));
   });
 });

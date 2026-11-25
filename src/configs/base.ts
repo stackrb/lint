@@ -20,30 +20,35 @@ import { defineConfig } from 'eslint/config';
 import type { DeprecationKind, DeprecationRule, Options } from '../types.js';
 
 import { CODE_FILES, DEFAULT_NODE_VERSION } from '../constants.js';
-import { bannedDependenciesRule } from './depend.js';
 
-const DEPRECATE_RULES: Record<DeprecationKind, string> = {
-  function: 'deprecate/function',
-  import: 'deprecate/import',
-  'member-expression': 'deprecate/member-expression',
+export function bannedDependenciesRule(modules: readonly string[]): Linter.RulesRecord {
+  return { 'depend/ban-dependencies': ['error', { modules: [...modules] }] };
+}
+
+const DEPRECATION_KINDS: Record<DeprecationKind, true> = {
+  function: true,
+  import: true,
+  'member-expression': true,
 };
 
 function deprecateRules(deprecations: readonly DeprecationRule[]): Linter.RulesRecord {
-  const rules: Record<string, unknown[]> = {};
+  const rules: Linter.RulesRecord = {};
 
   for (const item of deprecations) {
     const kind = item.kind ?? 'function';
-    if (!Object.hasOwn(DEPRECATE_RULES, kind)) {
+    if (!Object.hasOwn(DEPRECATION_KINDS, kind)) {
       continue;
     }
 
-    const name = DEPRECATE_RULES[kind];
-    const options = item.use === undefined ? { name: item.name } : { name: item.name, use: item.use };
+    const name = `deprecate/${kind}`;
+    // eslint-plugin-deprecate@0.9 rejects object options without `use`; bare strings are accepted.
+    const option = item.use === undefined ? item.name : { name: item.name, use: item.use };
     const current = rules[name];
-    rules[name] = current === undefined ? ['error', options] : [...current, options];
+    const previous: unknown[] = Array.isArray(current) ? current.slice(1) : [];
+    rules[name] = ['error', ...previous, option];
   }
 
-  return rules as Linter.RulesRecord;
+  return rules;
 }
 
 export function base(options: Options = {}): Linter.Config[] {

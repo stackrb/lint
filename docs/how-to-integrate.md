@@ -21,10 +21,10 @@ If you are new to the package, start with the [tutorial](tutorial.md).
 2. Create `eslint.config.mjs` at the package root:
 
    ```js
-   import config from '@stackrb/eslint-config';
-
-   export default config;
+   export { default } from '@stackrb/eslint-config';
    ```
+
+   Re-exporting directly keeps the one-import API and avoids `unicorn/prefer-export-from`, which would flag the import-then-export form on this config file.
 
 3. Lint your files:
 
@@ -77,7 +77,7 @@ You can combine independent runtimes:
 export default createConfig({ target: ['node', 'browser'] });
 ```
 
-`react`, `native`, and `expo` are cumulative (`expo` includes `native`, which includes `react`). Overlaps are deduplicated automatically: `{ target: ['native', 'expo'] }` applies only the `expo` config. Independent runtimes such as `['node', 'browser']` are both applied.
+`react`, `native`, and `expo` are cumulative (`expo` includes `native`, which includes `react`). Overlaps are deduplicated automatically: `{ target: ['native', 'expo'] }` collapses to a single `expo` target whose chain still contains the `react`, `native`, and `expo` blocks — it does not emit just one block. Independent runtimes such as `['node', 'browser']` are both applied. See [Targets](reference.md#targets) for the full list.
 
 If you prefer preset names, use the plugin facade:
 
@@ -162,7 +162,7 @@ export default createConfig({
 });
 ```
 
-`kind` accepts `'function'` (the default), `'import'`, or `'member-expression'`. When the option is empty or omitted, no deprecation rules are enabled.
+`kind` accepts `'function'` (the default), `'import'`, or `'member-expression'`. `use` is optional: a bare `{ name: 'oldApi' }` entry is valid and reports the symbol without suggesting a replacement. When the option is empty or omitted, no deprecation rules are enabled.
 
 ## Ban dependencies
 
@@ -221,4 +221,4 @@ export default defineConfig([
 ]);
 ```
 
-`base(options)`, `typescript(options)`, and `data(options)` accept the relevant `Options` fields; the remaining partials take no arguments. Your own block can go at the end for final overrides. See the [exports table](reference.md#exports) for the full list.
+`base(options)`, `typescript(options)`, and `data(options)` accept the relevant `Options` fields, and `ignores(extraIgnores?)` accepts an optional array of extra ignore patterns; the rest take no arguments. Your own block can go at the end for final overrides. See the [exports table](reference.md#exports) for the authoritative list.

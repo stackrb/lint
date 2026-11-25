@@ -6,6 +6,7 @@ import { ESLint } from 'eslint';
 import type { Linter } from 'eslint';
 import { clearCandidateTSConfigRootDirs } from '@typescript-eslint/typescript-estree';
 import type { Options } from '../../src/types.js';
+import { messageRuleIds } from '../shared/helpers.js';
 
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CONFIG_MODULE_URL = pathToFileURL(join(PACKAGE_ROOT, 'dist', 'index.js')).href;
@@ -106,15 +107,5 @@ export async function withProject<T>(
 }
 
 export function ruleIds(results: readonly ESLint.LintResult[]): string[] {
-  return results.flatMap((result) =>
-    result.messages.flatMap((message) => (message.ruleId === null ? [] : [message.ruleId])),
-  );
-}
-
-export function ruleIsEnabled(entry: Linter.RuleEntry | undefined): boolean {
-  if (entry === undefined) {
-    return false;
-  }
-  const level = Array.isArray(entry) ? entry[0] : entry;
-  return level === 1 || level === 2 || level === 'warn' || level === 'error';
+  return results.flatMap((result) => messageRuleIds(result.messages));
 }

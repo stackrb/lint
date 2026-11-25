@@ -12,7 +12,7 @@ Instead of assembling a dozen plugins, presets, and glob patterns yourself, you 
 | ESLint (peer) | `>=10.4.0` |
 | TypeScript (optional peer) | `>=4.8.4 <6.1.0` |
 
-TypeScript is only needed to lint `.ts`/`.tsx` files and to use type-aware mode (`typed: true`).
+TypeScript is only needed to lint `.ts`/`.tsx` files and to use type-aware mode (`typed: true`). See the [reference](docs/reference.md#requirements) for the authoritative constraints.
 
 ## Install
 
@@ -27,12 +27,10 @@ The package brings its own lint plugins as dependencies — you do not install t
 1. Create `eslint.config.mjs` at the root of your project:
 
    ```js
-   import config from '@stackrb/eslint-config';
-
-   export default config;
+   export { default } from '@stackrb/eslint-config';
    ```
 
-   The default export is `createConfig()` with no options, which targets `node`.
+   This is the same one-import API, re-exported directly. The direct re-export avoids `unicorn/prefer-export-from`, which would otherwise fire on `eslint.config.mjs` when this config lints its own config file. The default export is `createConfig()` with no options, which targets `node`.
 
 2. Lint your code:
 
@@ -58,7 +56,7 @@ Several runtimes can be combined:
 export default createConfig({ target: ['node', 'browser'] });
 ```
 
-Available targets: `node`, `browser`, `react`, `native`, `expo`. The last three are cumulative — `expo` includes `native`, which includes `react` — and overlapping targets are deduplicated automatically: `{ target: ['native', 'expo'] }` applies only the `expo` config. Independent runtimes such as `['node', 'browser']` are both applied.
+Available targets: `node`, `browser`, `react`, `native`, `expo`. The last three are cumulative — `expo` includes `native`, which includes `react` — and overlapping targets are deduplicated automatically: `{ target: ['native', 'expo'] }` collapses to a single `expo` target whose chain contains the `react`, `native`, and `expo` blocks (not just one block). Independent runtimes such as `['node', 'browser']` are both applied. See [Targets](docs/reference.md#targets) for the full list.
 
 The same presets are available through the plugin facade if your tooling expects that shape:
 
@@ -83,7 +81,7 @@ export default plugin.configs.react;
 | `extraGlobals` | Ambient globals for code files. |
 | `extraRules` | Final rule overrides for code files, applied after every preset including Prettier. |
 
-See the [full reference](docs/reference.md#options) for types, defaults, and semantics, and the [how-to guide](docs/how-to-integrate.md) for worked examples.
+This table is a summary; [the reference](docs/reference.md#options) is the exhaustive source for types, defaults, and semantics, and the [how-to guide](docs/how-to-integrate.md) has worked examples.
 
 ## Scripts (this repository)
 

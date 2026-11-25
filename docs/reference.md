@@ -1,6 +1,6 @@
 # Reference
 
-Technical description of the public API of `@stackrb/eslint-config` (version 0.1.0). For worked examples, see the [how-to guide](how-to-integrate.md).
+Technical description of the public API of `@stackrb/eslint-config` (version 0.1.0 plus the unreleased changes listed in the [changelog](../CHANGELOG.md)). For worked examples, see the [how-to guide](how-to-integrate.md).
 
 ## Requirements
 
@@ -18,10 +18,10 @@ All exports come from the package root. Partials are functions that return `Lint
 | --- | --- | --- |
 | `default` | `Linter.Config[]` | `createConfig()` with no options — the `node` target with all defaults. |
 | `createConfig(options?)` | function | Builds the complete config array from an `Options` object. |
-| `plugin` | object | Plugin-shaped facade: `meta.name` is `@stackrb/eslint-config`, `rules` is empty, and `configs` holds the presets below. |
+| `plugin` | object | Plugin-shaped facade: `meta` exposes `name` (`@stackrb/eslint-config`), `namespace` (`stackrb`), and `version` (from `package.json`); `rules` is empty and `configs` holds the presets below. |
 | `plugin.configs.recommended` | `Linter.Config[]` | Same as the default export (`createConfig()`). |
 | `plugin.configs.node` / `.browser` / `.react` / `.native` / `.expo` | `Linter.Config[]` | `createConfig({ target: '<name>' })`. |
-| `ignores(extraIgnores?)` | partial | Global ignores: the default list plus any extras. |
+| `ignores(extraIgnores?)` | partial | Global ignores in a single `stackrb/ignores` block: the default list plus any extras. |
 | `base(options?)` | partial | Core rules, plugins, presets, parser, and `settings.node.version`; option-driven `depend` and `deprecate` rules. |
 | `javascript()` | partial | JSDoc recommended rules for JavaScript files. |
 | `typescript(options?)` | partial | `typescript-eslint` recommended (plus type-aware rules when `typed: true`) and JSDoc TSDoc rules for TypeScript files. |
@@ -54,7 +54,7 @@ Every property of `Options` is `readonly`.
 
 | Option | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `target` | `Target \| readonly Target[]` | `'node'` | Runtime(s) the consuming package targets. `undefined` and `[]` both resolve to `node`. The set is deduplicated: a target implied by another selected target is dropped (for example `['native', 'expo']` becomes `['expo']`). |
+| `target` | `Target \| readonly Target[]` | `'node'` | Runtime(s) the consuming package targets. `undefined` and `[]` both resolve to `node`. The set is deduplicated: a target implied by another selected target is dropped (for example `['native', 'expo']` becomes `['expo']`), but the surviving target still emits its full cumulative chain — the `expo` chain contains the `react` and `native` blocks. |
 | `extraIgnores` | `readonly string[]` | `[]` | Extra patterns added to the global ignore list. |
 | `nodeVersion` | `string` | `'>=20.19.0'` | Value for `settings.node.version`; prevents guessing from the consumer's `engines`. |
 | `typed` | `boolean` | `false` | Enable type-aware rules via `parserOptions.projectService`. |
@@ -82,7 +82,7 @@ Every property of `Options` is `readonly`.
 | `native` | Everything in `react`, plus `react-native/no-deep-imports`, `react-native/platform-colors`, and React Native globals. |
 | `expo` | Everything in `native`, plus the Expo rules listed under [Rule sources](#rule-sources-by-plugin). |
 
-Targets are cumulative: `expo` includes `native`, which includes `react`. Overlaps are deduplicated automatically — `createConfig` drops any selected target implied by another selected target, so `['native', 'expo']` applies only `expo`. Independent combinations such as `['node', 'browser']` apply both.
+Targets are cumulative: `expo` includes `native`, which includes `react`. Overlaps are deduplicated automatically — `createConfig` drops any selected target implied by another selected target, so `['native', 'expo']` emits a single `expo` chain containing the `react`, `native`, and `expo` blocks, not one lone block. Independent combinations such as `['node', 'browser']` apply both.
 
 ## File globs
 
@@ -131,7 +131,7 @@ Targets are cumulative: `expo` includes `native`, which includes `react`. Overla
 | `eslint-plugin-perfectionist` | `base` | `recommended-natural` |
 | `eslint-plugin-unicorn` | `base` | `recommended`, with `no-asterisk-prefix-in-documentation-comments` turned off |
 | `@stylistic/eslint-plugin` | `base` | `recommended` |
-| `@eslint-community/eslint-plugin-eslint-comments` | `base` | `no-duplicate-disable`, `no-unlimited-disable`, `no-unused-disable`, `no-unused-enable` |
+| `@eslint-community/eslint-plugin-eslint-comments` | `base` | `no-duplicate-disable`, `no-unlimited-disable`, `no-unused-enable` |
 | `eslint-plugin-depend` | `base`, `data` | `depend/ban-dependencies` — enabled only when `bannedDependencies` is non-empty |
 | `eslint-plugin-deprecate` | `base` | `deprecate/function`, `deprecate/import`, `deprecate/member-expression` — enabled only when `deprecations` is non-empty |
 | `@vitest/eslint-plugin` | `tests` | `recommended` plus test-environment globals |
@@ -146,11 +146,12 @@ Targets are cumulative: `expo` includes `native`, which includes `react`. Overla
 | `eslint-plugin-expo` | `expo` | `no-env-var-destructuring`, `no-dynamic-env-var`, `use-dom-exports` (errors) and `prefer-box-shadow` (warning) |
 | `globals` | `node`, `browser`, `react` | Node.js, browser, and builtin ambient globals |
 
+Unused `eslint-disable` directives are reported by ESLint's core `linterOptions.reportUnusedDisableDirectives: true` in `base`; this replaces the removed `@eslint-community/eslint-comments/no-unused-disable` rule.
+
 ## Compatibility notes
 
-- `eslint-plugin-deprecate@0.9.0` and `eslint-plugin-jsx-a11y` declare stale ESLint peer ranges while other bundled plugins require ESLint 10. npm enforces those ranges only when the plugins are direct dependencies of the root project, as in this repository's own development install — which therefore sets `legacy-peer-deps=true` in its `.npmrc`. In a consuming package the plugins are transitive, so a normal `npm install` succeeds with no extra flag.
-- The config disables `unicorn/no-asterisk-prefix-in-documentation-comments` to prevent circular autofixes with `jsdoc/check-alignment`.
-- React coverage uses `@eslint-react/eslint-plugin@5` and `eslint-plugin-react-hooks@7` because `eslint-plugin-react@7` is not compatible with ESLint 10.
-- React Native coverage uses `@react-native/eslint-plugin` for the same reason.
+The full reasoning lives in [Compatibility caveats](explanation.md#compatibility-caveats); the short version:
 
-The reasoning behind these choices is in [Compatibility caveats](explanation.md#compatibility-caveats).
+- Consumers do not need `legacy-peer-deps`. It is set only in this repository's `.npmrc`, because here ESLint and the stale-peer plugins are direct dev dependencies; in a consuming package those plugins are transitive.
+- `unicorn/no-asterisk-prefix-in-documentation-comments` is off to avoid circular autofixes with `jsdoc/check-alignment`.
+- React and React Native coverage uses ESLint-10-compatible plugins (`@eslint-react/eslint-plugin@5`, `eslint-plugin-react-hooks@7`, `@react-native/eslint-plugin`) instead of `eslint-plugin-react@7`.

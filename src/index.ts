@@ -4,35 +4,21 @@ import { defineConfig } from 'eslint/config';
 
 import type { Options, Target } from './types.js';
 
+import packageJson from '../package.json' with { type: 'json' };
 import { base } from './configs/base.js';
-import { data } from './configs/data.js';
-import { ignores } from './configs/ignores.js';
-import { javascript } from './configs/javascript.js';
-import { markdownConfig } from './configs/markdown.js';
-import { prettierConfig } from './configs/prettier.js';
-import { tests } from './configs/tests.js';
-import { typescriptConfig } from './configs/typescript.js';
+import { data, javascript, markdown, typescript } from './configs/languages.js';
+import { ignores, prettier, tests } from './configs/misc.js';
 import { CODE_FILES } from './constants.js';
-import { browserTarget } from './targets/browser.js';
-import { expoTarget } from './targets/expo.js';
-import { nativeTarget } from './targets/native.js';
-import { nodeTarget } from './targets/node.js';
-import { reactTarget } from './targets/react.js';
+import { expo, native } from './targets/mobile.js';
+import { react } from './targets/react.js';
+import { browser, node } from './targets/runtime.js';
 
-const TARGETS: Record<Target, (options: Options) => Linter.Config[]> = {
-  browser: browserTarget,
-  expo: expoTarget,
-  native: nativeTarget,
-  node: nodeTarget,
-  react: reactTarget,
-};
-
-const TARGET_DEPENDENCIES: Record<Target, readonly Target[]> = {
-  browser: [],
-  expo: ['native', 'react'],
-  native: ['react'],
-  node: [],
-  react: [],
+const TARGETS: Record<Target, { build: () => Linter.Config[]; includes: readonly Target[] }> = {
+  browser: { build: browser, includes: [] },
+  expo: { build: expo, includes: ['native', 'react'] },
+  native: { build: native, includes: ['react'] },
+  node: { build: node, includes: [] },
+  react: { build: react, includes: [] },
 };
 
 function normalizeTargets(target: Options['target']): readonly Target[] {
@@ -47,10 +33,14 @@ function normalizeTargets(target: Options['target']): readonly Target[] {
 
   const selected = new Set<Target>(list.length === 0 ? ['node'] : list);
 
-  const names = [...selected];
-  const dependencies = names.flatMap((name) => TARGET_DEPENDENCIES[name]);
-  for (const dependency of dependencies) {
-    selected.delete(dependency);
+  // Iterate a snapshot: deleting an explicitly-selected dependency while walking
+  // the live set would skip later entries and change insertion order.
+  const snapshot = [...selected];
+  for (const name of snapshot) {
+    const { includes } = TARGETS[name];
+    for (const dependency of includes) {
+      selected.delete(dependency);
+    }
   }
 
   return [...selected];
@@ -58,21 +48,22 @@ function normalizeTargets(target: Options['target']): readonly Target[] {
 
 export function createConfig(options: Options = {}): Linter.Config[] {
   const targets = normalizeTargets(options.target);
-  const targetConfigs = targets.flatMap((target) => TARGETS[target](options));
+  const targetConfigs = targets.flatMap((target) => TARGETS[target].build());
 
   return defineConfig([
     ...ignores(options.extraIgnores),
     base(options),
     javascript(),
-    typescriptConfig(options),
+    typescript(options),
     tests(),
     data(options),
-    markdownConfig(),
+    markdown(),
     ...targetConfigs,
     ...(options.extraGlobals === undefined
       ? []
       : [{ files: [CODE_FILES], languageOptions: { globals: { ...options.extraGlobals } }, name: 'stackrb/extra-globals' }]),
-    prettierConfig(),
+    // Prettier follows every preset so its rule-disabling wins; only explicit overrides come after.
+    prettier(),
     ...(options.extraRules === undefined
       ? []
       : [{ files: [CODE_FILES], name: 'stackrb/overrides', rules: options.extraRules }]),
@@ -80,57 +71,53 @@ export function createConfig(options: Options = {}): Linter.Config[] {
 }
 
 const defaultConfig = createConfig();
-const presetCache = new Map<string, Linter.Config[]>([['recommended', defaultConfig]]);
+const presetConfigs: Partial<Record<'recommended' | Target, Linter.Config[]>> = {
+  node: defaultConfig,
+  recommended: defaultConfig,
+};
 
-function preset(name: string, target?: Target): Linter.Config[] {
-  const cached = presetCache.get(name);
+function preset(name: 'recommended' | Target): Linter.Config[] {
+  const cached = presetConfigs[name];
   if (cached !== undefined) {
     return cached;
   }
 
-  const built = createConfig(target === undefined ? {} : { target });
-  presetCache.set(name, built);
+  const built = createConfig(name === 'recommended' ? {} : { target: name });
+  presetConfigs[name] = built;
   return built;
 }
 
 export const plugin = {
   configs: {
     get browser() {
-      return preset('browser', 'browser');
+      return preset('browser');
     },
     get expo() {
-      return preset('expo', 'expo');
+      return preset('expo');
     },
     get native() {
-      return preset('native', 'native');
+      return preset('native');
     },
     get node() {
-      return preset('node', 'node');
+      return preset('node');
     },
     get react() {
-      return preset('react', 'react');
+      return preset('react');
     },
     get recommended() {
       return preset('recommended');
     },
   },
-  meta: { name: '@stackrb/eslint-config' },
+  meta: { name: '@stackrb/eslint-config', namespace: 'stackrb', version: packageJson.version },
   rules: {},
 } as const;
 
 export default defaultConfig;
 
 export { base } from './configs/base.js';
-export { data } from './configs/data.js';
-export { ignores } from './configs/ignores.js';
-export { javascript } from './configs/javascript.js';
-export { markdownConfig as markdown } from './configs/markdown.js';
-export { prettierConfig as prettier } from './configs/prettier.js';
-export { tests } from './configs/tests.js';
-export { typescriptConfig as typescript } from './configs/typescript.js';
-export { browserTarget as browser } from './targets/browser.js';
-export { expoTarget as expo } from './targets/expo.js';
-export { nativeTarget as native } from './targets/native.js';
-export { nodeTarget as node } from './targets/node.js';
-export { reactTarget as react } from './targets/react.js';
+export { data, javascript, markdown, typescript } from './configs/languages.js';
+export { ignores, prettier, tests } from './configs/misc.js';
+export { expo, native } from './targets/mobile.js';
+export { react } from './targets/react.js';
+export { browser, node } from './targets/runtime.js';
 export type { DeprecationKind, DeprecationRule, GlobalValue, Options, Target } from './types.js';

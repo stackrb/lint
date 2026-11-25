@@ -1,15 +1,16 @@
 import type { Linter } from 'eslint';
 
 import reactNative from '@react-native/eslint-plugin';
+import expoPlugin from 'eslint-plugin-expo';
 import reactNativeGlobals from 'eslint-plugin-react-native-globals';
 import { defineConfig } from 'eslint/config';
 
 import { CODE_FILES } from '../constants.js';
-import { reactTarget } from './react.js';
+import { react } from './react.js';
 
-export function nativeTarget(): Linter.Config[] {
+export function native(): Linter.Config[] {
   return defineConfig([
-    ...reactTarget(),
+    ...react(),
     {
       files: [CODE_FILES],
       languageOptions: {
@@ -20,6 +21,23 @@ export function nativeTarget(): Linter.Config[] {
       rules: {
         'react-native/no-deep-imports': 'error',
         'react-native/platform-colors': 'error',
+      },
+    },
+  ]);
+}
+
+export function expo(): Linter.Config[] {
+  return defineConfig([
+    ...native(),
+    {
+      files: [CODE_FILES],
+      name: 'stackrb/target-expo',
+      plugins: { expo: expoPlugin },
+      rules: {
+        'expo/no-dynamic-env-var': 'error',
+        'expo/no-env-var-destructuring': 'error',
+        'expo/prefer-box-shadow': 'warn',
+        'expo/use-dom-exports': 'error',
       },
     },
   ]);
