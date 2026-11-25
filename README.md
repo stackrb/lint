@@ -2,7 +2,7 @@
 
 One-import ESLint flat config for Node.js, browser, React, React Native, and Expo projects.
 
-Instead of assembling a dozen plugins, presets, and glob patterns yourself, you import one value and export it as your ESLint config. JavaScript, TypeScript, tests, JSON, and Markdown are all covered. You pick a runtime target (or several) and can optionally enable type-aware linting, deprecation checks, and dependency bans.
+Instead of assembling a dozen plugins, presets, and glob patterns yourself, you import one value and export it as your ESLint config. JavaScript, TypeScript, tests, JSON, Markdown, and shell scripts are all covered. You pick a runtime target (or several) and can optionally enable type-aware linting, deprecation checks, and dependency bans. Shell files (`.sh`, `.bash`) always get `@eslint/shell`'s recommended ShellCheck-inspired rules, regardless of target.
 
 ## Requirements
 

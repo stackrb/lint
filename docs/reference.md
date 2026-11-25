@@ -28,6 +28,7 @@ All exports come from the package root. Partials are functions that return `Lint
 | `tests()` | partial | Vitest recommended rules and globals for test files. |
 | `data(options?)` | partial | JSON, JSONC, and JSON5 language configs; dependency bans in JSON when `bannedDependencies` is set. |
 | `markdown()` | partial | Markdown GFM recommended rules. |
+| `shell()` | partial | `@eslint/shell` language for `.sh`/`.bash` with `shell/recommended` always enabled. |
 | `prettier()` | partial | `eslint-config-prettier` flat config — disables rules that conflict with a formatter. |
 | `node()` / `browser()` / `react()` / `native()` / `expo()` | partials | Target-specific globals and rules. |
 | `Options`, `Target`, `DeprecationRule`, `DeprecationKind`, `GlobalValue` | type-only | Public TypeScript types. |
@@ -43,10 +44,11 @@ All exports come from the package root. Partials are functions that return `Lint
 5. `tests()`
 6. `data(options)`
 7. `markdown()`
-8. Target configs, in the order given in `target` after deduplication
-9. A `stackrb/extra-globals` block with `files: [CODE_FILES]` and `languageOptions.globals` from `extraGlobals`, added only when `extraGlobals` is defined
-10. `prettier()`
-11. A final `stackrb/overrides` block with `files: [CODE_FILES]` and `rules` from `extraRules`, added only when `extraRules` is defined
+8. `shell()`
+9. Target configs, in the order given in `target` after deduplication
+10. A `stackrb/extra-globals` block with `files: [CODE_FILES]` and `languageOptions.globals` from `extraGlobals`, added only when `extraGlobals` is defined
+11. `prettier()`
+12. A final `stackrb/overrides` block with `files: [CODE_FILES]` and `rules` from `extraRules`, added only when `extraRules` is defined
 
 ## Options
 
@@ -96,6 +98,7 @@ Targets are cumulative: `expo` includes `native`, which includes `react`. Overla
 | `**/*.jsonc` | — | `data()` — `json/jsonc` language |
 | `**/*.json5` | — | `data()` — `json/json5` language |
 | `**/*.md` | — | `markdown()` — `markdown/gfm` language |
+| `**/*.{sh,bash}` | `SHELL_FILES` | `shell()` — `shell/bash` language and `shell/recommended` |
 
 ## Ignore list
 
@@ -137,6 +140,7 @@ Targets are cumulative: `expo` includes `native`, which includes `react`. Overla
 | `@vitest/eslint-plugin` | `tests` | `recommended` plus test-environment globals |
 | `@eslint/json` | `data` | `json/recommended` for JSON, JSONC, and JSON5 |
 | `@eslint/markdown` | `markdown` | `markdown/gfm` language and `markdown/recommended` |
+| `@eslint/shell` | `shell` | `shell/bash` language and `shell/recommended` (10 ShellCheck-inspired rules, always on) |
 | `eslint-config-prettier` | `prettier` | Disables formatting-conflicting rules from all earlier presets |
 | `@eslint-react/eslint-plugin` | `react` | `recommended-typescript` |
 | `eslint-plugin-react-hooks` | `react` | `flat.recommended` |

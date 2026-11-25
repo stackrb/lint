@@ -7,6 +7,7 @@ import { configNamed, pluginNames, ruleEntries, topLevelNames } from './helpers.
 const JS_FILES = '**/*.{js,jsx,mjs,cjs}';
 const TS_FILES = '**/*.{ts,tsx,mts,cts}';
 const CODE_FILES = '**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}';
+const SHELL_FILES = '**/*.{sh,bash}';
 const TEST_FILES = '**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}';
 
 const DEFAULT_IGNORES = [
@@ -62,6 +63,7 @@ describe('config structure', () => {
       'stackrb/jsonc',
       'stackrb/json5',
       'stackrb/markdown',
+      'stackrb/shell',
       'stackrb/target-node',
       'stackrb/target-browser',
       'stackrb/target-react',
@@ -87,6 +89,7 @@ describe('config structure', () => {
     expect(configNamed(configs, 'stackrb/jsonc').files).toEqual(['**/*.jsonc']);
     expect(configNamed(configs, 'stackrb/json5').files).toEqual(['**/*.json5']);
     expect(configNamed(configs, 'stackrb/markdown').files).toEqual(['**/*.md']);
+    expect(configNamed(configs, 'stackrb/shell').files).toEqual([SHELL_FILES]);
   });
 
   it('puts the Prettier config after every other block in the default config', () => {
@@ -114,6 +117,7 @@ describe('config structure', () => {
       'vitest',
       'json',
       'markdown',
+      'shell',
       'deslint',
       'de-morgan',
       'sonarjs',
@@ -153,6 +157,7 @@ describe('config structure', () => {
       'vitest/expect-expect',
       'json/no-duplicate-keys',
       'markdown/require-alt-text',
+      'shell/no-backticks',
     ];
 
     for (const rule of expected) {
@@ -168,6 +173,15 @@ describe('config structure', () => {
 
   it('turns off the Unicorn documentation asterisk rule', () => {
     expect(ruleEntries(createConfig()).get('unicorn/no-asterisk-prefix-in-documentation-comments')).toBe('off');
+  });
+
+  it('always enables the shell plugin recommended config', () => {
+    const configs = createConfig();
+    const recommended = configNamed(configs, 'stackrb/shell > shell/recommended');
+
+    expect(recommended.language).toBe('shell/bash');
+    expect(recommended.rules).toHaveProperty('shell/no-backticks', 'error');
+    expect(ruleIsEnabled(ruleEntries(configs).get('shell/no-backticks'))).toBe(true);
   });
 
   it('registers target plugins and scopes their configs to code files', () => {

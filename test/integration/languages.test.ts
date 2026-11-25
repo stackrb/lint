@@ -36,4 +36,20 @@ describe('language plugins', () => {
       expect(results[0]?.messages.some((message) => message.ruleId === 'markdown/no-multiple-h1')).toBe(true);
     });
   });
+
+  it('lints shell files with the shell plugin and its recommended rules', async () => {
+    await withProject({}, async (project) => {
+      await project.write('scripts/bad.sh', 'echo `pwd`\necho $HOME\n');
+      await project.write('scripts/good.sh', 'echo "hello"\n');
+
+      const results = await project.lint(['scripts/bad.sh', 'scripts/good.sh']);
+      expect(results).toHaveLength(2);
+      expect(
+        results.find((entry) => entry.filePath.endsWith('bad.sh'))?.messages.some(
+          (message) => message.ruleId === 'shell/no-backticks',
+        ),
+      ).toBe(true);
+      expect(results.find((entry) => entry.filePath.endsWith('good.sh'))?.errorCount).toBe(0);
+    });
+  });
 });

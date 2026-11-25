@@ -91,12 +91,14 @@ describe('drop-in CLI experience', () => {
     const dir = project();
     writeConfig(dir);
     write(dir, 'index.js', 'const unused = 1;\ndebugger;\n');
+    write(dir, 'script.sh', 'echo `pwd`\n');
 
     const result = runEslint(dir);
 
     expect(result.status).toBe(1);
     expect(result.output).toContain('no-unused-vars');
     expect(result.output).toContain('no-debugger');
+    expect(result.output).toContain('shell/no-backticks');
   }, 60_000);
 
   it('skips ignored directories', () => {

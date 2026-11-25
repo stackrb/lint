@@ -8,6 +8,7 @@ import packageJson from '../package.json' with { type: 'json' };
 import { base } from './configs/base.js';
 import { data, javascript, markdown, typescript } from './configs/languages.js';
 import { ignores, prettier, tests } from './configs/misc.js';
+import { shellConfig } from './configs/shell.js';
 import { CODE_FILES } from './constants.js';
 import { expo, native } from './targets/mobile.js';
 import { react } from './targets/react.js';
@@ -49,7 +50,7 @@ function normalizeTargets(target: Options['target']): readonly Target[] {
 /**
  * Builds the complete ESLint flat config in the documented composition order.
  * @param options - Targets, ignores, globals, rules and other customisations.
- * @returns {Array} The ordered config blocks consumed by ESLint.
+ * @returns The ordered config blocks consumed by ESLint.
  */
 export function createConfig(options: Options = {}): Linter.Config[] {
   const targets = normalizeTargets(options.target);
@@ -63,6 +64,7 @@ export function createConfig(options: Options = {}): Linter.Config[] {
     tests(),
     data(options),
     markdown(),
+    shellConfig(),
     ...targetConfigs,
     ...(options.extraGlobals === undefined
       ? []
@@ -125,6 +127,7 @@ export default defaultConfig;
 export { base } from './configs/base.js';
 export { data, javascript, markdown, typescript } from './configs/languages.js';
 export { ignores, prettier, tests } from './configs/misc.js';
+export { shellConfig as shell } from './configs/shell.js';
 export { expo, native } from './targets/mobile.js';
 export { react } from './targets/react.js';
 export { browser, node } from './targets/runtime.js';

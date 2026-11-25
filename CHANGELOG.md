@@ -11,6 +11,7 @@ A behavior-preserving source refactor. The public API — default export, `creat
 - `plugin.meta` now exposes `namespace: 'stackrb'` and `version` (read from `package.json`) alongside `name`.
 - The global-ignores config block is named `stackrb/ignores` instead of a generated `globalIgnores N` name.
 - Generated API reference under `docs/api/`, produced from JSDoc by `mdaics` via the `docs` script, with a `docs:check` CI guard.
+- Shell language support: `.sh` and `.bash` files are linted with `@eslint/shell` and its `shell/recommended` rules, always enabled, plus a `shell()` partial export.
 
 ### Changed
 

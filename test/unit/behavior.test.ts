@@ -73,6 +73,12 @@ const CASES: readonly DiagnosticCase[] = [
     ruleId: 'markdown/require-alt-text',
   },
   {
+    label: 'reports a shell diagnostic',
+    source: 'echo `pwd`\n',
+    filePath: 'script.sh',
+    ruleId: 'shell/no-backticks',
+  },
+  {
     label: 'reports a vitest diagnostic in a test file',
     source: 'it("does nothing", () => {});\n',
     filePath: 'sample.test.js',
