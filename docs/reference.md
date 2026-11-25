@@ -26,6 +26,7 @@ All exports come from the package root. Partials are functions that return `Lint
 | `javascript()` | partial | JSDoc recommended rules for JavaScript files. |
 | `typescript(options?)` | partial | `typescript-eslint` recommended (plus type-aware rules when `typed: true`) and JSDoc TSDoc rules for TypeScript files. |
 | `tests()` | partial | Vitest recommended rules and globals for test files. |
+| `playwright()` | partial | Playwright recommended rules and globals for test files. |
 | `data(options?)` | partial | JSON, JSONC, and JSON5 language configs; dependency bans in JSON when `bannedDependencies` is set. |
 | `markdown()` | partial | Markdown GFM recommended rules. |
 | `shell()` | partial | `@eslint/shell` language for `.sh`/`.bash` with `shell/recommended` always enabled. |
@@ -42,13 +43,14 @@ All exports come from the package root. Partials are functions that return `Lint
 3. `javascript()`
 4. `typescript(options)`
 5. `tests()`
-6. `data(options)`
-7. `markdown()`
-8. `shell()`
-9. Target configs, in the order given in `target` after deduplication
-10. A `stackrb/extra-globals` block with `files: [CODE_FILES]` and `languageOptions.globals` from `extraGlobals`, added only when `extraGlobals` is defined
-11. `prettier()`
-12. A final `stackrb/overrides` block with `files: [CODE_FILES]` and `rules` from `extraRules`, added only when `extraRules` is defined
+6. `playwright()`
+7. `data(options)`
+8. `markdown()`
+9. `shell()`
+10. Target configs, in the order given in `target` after deduplication
+11. A `stackrb/extra-globals` block with `files: [CODE_FILES]` and `languageOptions.globals` from `extraGlobals`, added only when `extraGlobals` is defined
+12. `prettier()`
+13. A final `stackrb/overrides` block with `files: [CODE_FILES]` and `rules` from `extraRules`, added only when `extraRules` is defined
 
 ## Options
 
@@ -138,6 +140,7 @@ Targets are cumulative: `expo` includes `native`, which includes `react`. Overla
 | `eslint-plugin-depend` | `base`, `data` | `depend/ban-dependencies` — enabled only when `bannedDependencies` is non-empty |
 | `eslint-plugin-deprecate` | `base` | `deprecate/function`, `deprecate/import`, `deprecate/member-expression` — enabled only when `deprecations` is non-empty |
 | `@vitest/eslint-plugin` | `tests` | `recommended` plus test-environment globals |
+| `eslint-plugin-playwright` | `playwright` | `flat/recommended` plus Playwright globals on all `TEST_FILES` |
 | `@eslint/json` | `data` | `json/recommended` for JSON, JSONC, and JSON5 |
 | `@eslint/markdown` | `markdown` | `markdown/gfm` language and `markdown/recommended` |
 | `@eslint/shell` | `shell` | `shell/bash` language and `shell/recommended` (10 ShellCheck-inspired rules, always on) |

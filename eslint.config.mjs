@@ -37,6 +37,9 @@ export default defineConfig([
       'unicorn/no-unreadable-for-of-expression': 'off',
       'sonarjs/assertions-in-tests': 'off',
       'vitest/valid-expect': 'off',
+      // The published config enables Playwright on every test file; these suites use Vitest,
+      // so a Playwright-only rule about expect placement does not apply here.
+      'playwright/no-standalone-expect': 'off',
       'unicorn/no-null': 'off',
       'unicorn/single-line-block-comment-style': 'off',
       'unicorn/no-await-expression-member': 'off',

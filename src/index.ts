@@ -8,6 +8,7 @@ import packageJson from '../package.json' with { type: 'json' };
 import { base } from './configs/base.js';
 import { data, javascript, markdown, typescript } from './configs/languages.js';
 import { ignores, prettier, tests } from './configs/misc.js';
+import { playwrightConfig } from './configs/playwright.js';
 import { shellConfig } from './configs/shell.js';
 import { CODE_FILES } from './constants.js';
 import { expo, native } from './targets/mobile.js';
@@ -62,6 +63,7 @@ export function createConfig(options: Options = {}): Linter.Config[] {
     javascript(),
     typescript(options),
     tests(),
+    playwrightConfig(),
     data(options),
     markdown(),
     shellConfig(),
@@ -127,6 +129,7 @@ export default defaultConfig;
 export { base } from './configs/base.js';
 export { data, javascript, markdown, typescript } from './configs/languages.js';
 export { ignores, prettier, tests } from './configs/misc.js';
+export { playwrightConfig as playwright } from './configs/playwright.js';
 export { shellConfig as shell } from './configs/shell.js';
 export { expo, native } from './targets/mobile.js';
 export { react } from './targets/react.js';

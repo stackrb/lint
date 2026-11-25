@@ -73,6 +73,12 @@ const CASES: readonly DiagnosticCase[] = [
     ruleId: 'markdown/require-alt-text',
   },
   {
+    label: 'reports a Playwright diagnostic',
+    source: 'test("x", async ({ page }) => { await page.waitForTimeout(1000); expect(1).toBe(1); });\n',
+    filePath: 'playwright.spec.ts',
+    ruleId: 'playwright/no-wait-for-timeout',
+  },
+  {
     label: 'reports a shell diagnostic',
     source: 'echo `pwd`\n',
     filePath: 'script.sh',

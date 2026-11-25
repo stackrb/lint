@@ -37,6 +37,18 @@ describe('language plugins', () => {
     });
   });
 
+  it('lints Playwright specs with the playwright plugin', async () => {
+    await withProject({}, async (project) => {
+      await project.write('tests/browser.spec.ts', 'test("x", async ({ page }) => { await page.waitForTimeout(1000); expect(1).toBe(1); });\n');
+
+      const results = await project.lint(['tests/browser.spec.ts']);
+      expect(results).toHaveLength(1);
+      expect(
+        results[0]?.messages.some((message) => message.ruleId === 'playwright/no-wait-for-timeout'),
+      ).toBe(true);
+    });
+  });
+
   it('lints shell files with the shell plugin and its recommended rules', async () => {
     await withProject({}, async (project) => {
       await project.write('scripts/bad.sh', 'echo `pwd`\necho $HOME\n');

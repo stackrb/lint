@@ -59,6 +59,7 @@ describe('config structure', () => {
       'stackrb/javascript',
       'stackrb/typescript',
       'stackrb/tests',
+      'stackrb/playwright',
       'stackrb/json',
       'stackrb/jsonc',
       'stackrb/json5',
@@ -85,6 +86,7 @@ describe('config structure', () => {
     expect(configNamed(configs, 'stackrb/javascript').files).toEqual([JS_FILES]);
     expect(configNamed(configs, 'stackrb/typescript').files).toEqual([TS_FILES]);
     expect(configNamed(configs, 'stackrb/tests').files).toEqual([TEST_FILES]);
+    expect(configNamed(configs, 'stackrb/playwright').files).toEqual([TEST_FILES]);
     expect(configNamed(configs, 'stackrb/json').files).toEqual(['**/*.json']);
     expect(configNamed(configs, 'stackrb/jsonc').files).toEqual(['**/*.jsonc']);
     expect(configNamed(configs, 'stackrb/json5').files).toEqual(['**/*.json5']);
@@ -115,6 +117,7 @@ describe('config structure', () => {
       'jsdoc',
       '@typescript-eslint',
       'vitest',
+      'playwright',
       'json',
       'markdown',
       'shell',
@@ -158,6 +161,7 @@ describe('config structure', () => {
       'json/no-duplicate-keys',
       'markdown/require-alt-text',
       'shell/no-backticks',
+      'playwright/no-wait-for-timeout',
     ];
 
     for (const rule of expected) {
@@ -173,6 +177,13 @@ describe('config structure', () => {
 
   it('turns off the Unicorn documentation asterisk rule', () => {
     expect(ruleEntries(createConfig()).get('unicorn/no-asterisk-prefix-in-documentation-comments')).toBe('off');
+  });
+
+  it('always enables the Playwright recommended rules on test files', () => {
+    const configs = createConfig();
+
+    expect(configNamed(configs, 'stackrb/playwright').files).toEqual([TEST_FILES]);
+    expect(ruleIsEnabled(ruleEntries(configs).get('playwright/no-wait-for-timeout'))).toBe(true);
   });
 
   it('always enables the shell plugin recommended config', () => {

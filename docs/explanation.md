@@ -70,7 +70,7 @@ A single "all files" glob would apply every plugin to every file. Instead the co
 
 - `JS_FILES` (`**/*.{js,jsx,mjs,cjs}`) carries JSDoc's JavaScript recommended rules.
 - `TS_FILES` (`**/*.{ts,tsx,mts,cts}`) carries `typescript-eslint` and JSDoc's TSDoc rules.
-- `TEST_FILES` (`**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}`) carries Vitest rules and globals.
+- `TEST_FILES` (`**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}`) carries both Vitest and Playwright recommended rules and globals, so either test framework is covered without extra configuration.
 - `CODE_FILES` (`**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}`) carries the shared base rules and all target globals.
 
 JSON, JSONC, JSON5, and Markdown each get their own language config from `@eslint/json` and `@eslint/markdown`; shell scripts (`SHELL_FILES`, `**/*.{sh,bash}`) get `@eslint/shell` with the `shell/bash` language and its `shell/recommended` rules. Shell is a language, not a runtime target, so it is enabled unconditionally for matching files. Splitting the globs is what allows, for example, Node globals on a `.js` file and Vitest globals in a `.test.ts` file without either leaking into the wrong place.
