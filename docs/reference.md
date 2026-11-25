@@ -1,6 +1,6 @@
 # Reference
 
-Technical description of the public API of `@stackrb/eslint-config` (version 0.1.0 plus the unreleased changes listed in the [changelog](../CHANGELOG.md)). For worked examples, see the [how-to guide](how-to-integrate.md).
+Technical description of the public API of `@stackrb/eslint-config` 0.1.0. For release notes, see the [changelog](../CHANGELOG.md); for worked examples, see the [how-to guide](how-to-integrate.md).
 
 ## Requirements
 
