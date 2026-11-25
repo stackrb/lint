@@ -80,6 +80,45 @@ export default createConfig({
 });
 ```
 
+### What rules you inherit
+
+Spreading `createConfig(...)` adds the full preset — you do not have to register the plugins or copy their rules yourself:
+
+| Files | Rules brought in |
+| --- | --- |
+| `**/*.{js,jsx,mjs,cjs}` | `@eslint/js` recommended, ESLint comments, `n`, `deslint`, `de-morgan`, `sonarjs`, `security`, `regexp`, `promise`, `perfectionist`, `unicorn`, `@stylistic`, and JSDoc `flat/recommended` |
+| `**/*.{ts,tsx,mts,cts}` | The same base rules plus `typescript-eslint` recommended (and type-checked rules when `typed: true`) and JSDoc `flat/recommended-tsdoc` |
+| `**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}` | Vitest recommended rules and globals **and** Playwright recommended rules and globals |
+| `**/*.sh`, `**/*.bash` | `@eslint/shell` with `shell/bash` and `shell/recommended` |
+| `**/*.json`, `**/*.jsonc`, `**/*.json5` | `@eslint/json` recommended language rules |
+| `**/*.md` | `@eslint/markdown` GFM recommended rules |
+| All code files | The chosen target's globals/rules: `node` (default), `browser`, `react`, `native`, or `expo` |
+| All files | `eslint-config-prettier` last, disabling formatter conflicts |
+
+To keep an existing config in its own module, import and spread it after the shared blocks:
+
+```js
+// eslint.config.mjs
+import { createConfig } from '@stackrb/eslint-config';
+import localConfig from './eslint.local.mjs';
+
+export default [
+  ...createConfig({ target: 'react', extraIgnores: ['generated/**'] }),
+  ...localConfig,
+];
+```
+
+Because your blocks come last, you can switch any inherited rule off without forking the shared config:
+
+```js
+{
+  files: ['**/*.sh'],
+  rules: { 'shell/no-unquoted-expansions': 'off' },
+}
+```
+
+Use `extraRules` instead when the override should be scoped to code files only. To drop a whole family, omit the target (`node` is the default) or add an ignore pattern with `extraIgnores`.
+
 A complete runnable version is in [`examples/consumer/eslint.config.extending.mjs`](../examples/consumer/eslint.config.extending.mjs); run it with `npm run lint:extending` from that directory.
 
 ## Choose a target

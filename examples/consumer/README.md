@@ -17,6 +17,8 @@ npm run lint
 
 If you already have an `eslint.config.mjs`, keep it and compose the shared config into it. `eslint.config.extending.mjs` shows the pattern: spread `createConfig(...)` first, then your existing blocks so your rules win.
 
+Spreading the config brings all of its rule families: base/TypeScript for code files, Vitest and Playwright for test files, `@eslint/shell` for `.sh`/`.bash`, JSON/Markdown language rules, and the rules of the target you select (`react` in the example). You can override any of them in your own blocks.
+
 ```sh
 npm run lint:extending
 ```

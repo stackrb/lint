@@ -68,6 +68,8 @@ export default plugin.configs.react;
 
 `plugin.configs` also exposes `recommended` (identical to the default export), `node`, `browser`, `react`, `native`, and `expo`.
 
+Already have an `eslint.config.mjs`? [Spread this config into it](docs/how-to-integrate.md#add-the-config-to-an-existing-eslint-config) and keep your own blocks last so their rules win.
+
 ## Options at a glance
 
 | Option | One-line purpose |
